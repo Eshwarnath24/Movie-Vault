@@ -111,8 +111,7 @@ class _SigninState extends State<Signin> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                Forgotpassword(), 
+                            builder: (context) => ForgetPassword(),
                           ),
                         );
                       },
@@ -147,8 +146,7 @@ class _SigninState extends State<Signin> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  MovieVault(), 
+                              builder: (context) => MovieVault(),
                             ),
                           );
                         },
