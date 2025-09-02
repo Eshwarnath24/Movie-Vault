@@ -15,7 +15,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color.fromRGBO(29, 29, 29, 1), // 👈 changed here
+        scaffoldBackgroundColor: Color.fromRGBO(29, 29, 29, 1),
         primaryColor: Colors.white70,
         appBarTheme: AppBarTheme(
           backgroundColor: Color.fromRGBO(29, 29, 29, 1),
@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: MovieVault(),
+      home: SplashScreen(),
     );
   }
 }
