@@ -348,13 +348,14 @@ class _MovieVaultState extends State<MovieVault> {
         bottomNavigationBar: Container(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
-            color: const Color.fromRGBO(73, 73, 73, 1),
-            borderRadius: BorderRadius.circular(12),
+            color: const Color.fromARGB(255, 50, 50, 50),
+            borderRadius: BorderRadius.circular(12), 
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12), 
             child: BottomNavigationBar(
               backgroundColor: Colors.transparent,
+              elevation: 0,
               type: BottomNavigationBarType.fixed,
               selectedItemColor: Colors.blue,
               unselectedItemColor: Colors.grey,
