@@ -21,7 +21,10 @@ class _MovieVaultState extends State<MovieVault> {
   }
 
   void changeNavigatingPage(Widget page) {
-    _navigatingPage = page;
+    setState(() {
+      _navigatingPage = page;
+      
+    });
   }
 
   Widget _createMenuOptions(String Option, IconData icon, {Color? color}) {
@@ -149,7 +152,7 @@ class _MovieVaultState extends State<MovieVault> {
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
-                    _navigatingPage = Profile(changePage: changeNavigatingPage);
+                    _navigatingPage = Profile(changePage: changeNavigatingPage, changeTittle: changeTittleName);
                   });
                 }
               },

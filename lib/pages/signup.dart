@@ -22,7 +22,7 @@ class _SignupState extends State<Signup> {
       ),
       child: Row(
         children: [
-          Icon(icon as IconData?, size: 20, color: Colors.white70),
+          Icon(icon, size: 20, color: Colors.white70),
           SizedBox(width: 10),
           Expanded(
             child: TextField(

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:ott/pages/editPassword.dart';
 import 'package:ott/pages/editProfile.dart';
+import 'package:ott/pages/signin.dart';
 
 class Profile extends StatefulWidget {
   final void Function(Widget) changePage;
+  final void Function(String) changeTittle;
 
-  const Profile({super.key, required this.changePage});
+  const Profile({
+    super.key,
+    required this.changePage,
+    required this.changeTittle,
+  });
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -31,7 +38,15 @@ class _ProfileState extends State<Profile> {
           child: ListTile(
             onTap: () {
               print("Add $Option tapped");
-              widget.changePage(navigatingPage);
+              if (Option == "Logout") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Signin()),
+                );
+              } else {
+                widget.changeTittle(Option);
+                widget.changePage(navigatingPage);
+              }
             },
             title: Text(Option, style: TextStyle(color: Colors.white)),
             leading: Icon(icon, color: Colors.white),
@@ -77,8 +92,16 @@ class _ProfileState extends State<Profile> {
           Expanded(
             child: ListView(
               children: [
-                _createProfileOptions("Edit Profile", Icons.person, EditProfile()),
-                // _createProfileOptions("Edit Password", Icons.lock),
+                _createProfileOptions(
+                  "Edit Profile",
+                  Icons.person,
+                  EditProfile(),
+                ),
+                _createProfileOptions(
+                  "Edit Password",
+                  Icons.lock,
+                  EditPassword(),
+                ),
 
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
@@ -116,7 +139,11 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
 
-                // _createProfileOptions("Logout", Icons.logout_outlined),
+                _createProfileOptions(
+                  "Logout",
+                  Icons.logout_outlined,
+                  Signin(),
+                ),
               ],
             ),
           ),
