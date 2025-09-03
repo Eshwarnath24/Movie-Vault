@@ -8,17 +8,10 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
-  List<bool> isSelected = [true, false];
+  List<bool> isSelected = [true, false]; // [Email, Phone]
 
   @override
   Widget build(BuildContext context) {
-    // 1. Get the screen's width to make the layout responsive.
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // 2. Calculate the available width for the buttons inside the screen's padding.
-    // We subtract 48 for the 24px padding on each side and 1px for the divider.
-    final buttonWidth = (screenWidth - 78 - 1) / 2;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -29,7 +22,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               children: [
                 const SizedBox(height: 20),
                 GestureDetector(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.pop(context), // ✅ this will now work
                   child: const Row(
                     children: [
                       Icon(Icons.arrow_back),
@@ -69,19 +62,20 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         }
                       });
                     },
-                    // 3. Replace the fixed Padding with Containers that have a calculated width.
-                    children: [
-                      Container(
-                        width: buttonWidth,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: const Text("Email"),
+                    children: const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 95,
+                          vertical: 6,
+                        ),
+                        child: Text("Email"),
                       ),
-                      Container(
-                        width: buttonWidth,
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: const Text("Phone"),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 95,
+                          vertical: 6,
+                        ),
+                        child: Text("Phone"),
                       ),
                     ],
                   ),
