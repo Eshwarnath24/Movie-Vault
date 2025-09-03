@@ -164,8 +164,11 @@ class _Header extends StatelessWidget {
           left: 16,
           top: 12,
           child: Row(
-            children: const [
-              Icon(Icons.arrow_back, size: 18),
+            children: [
+              GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(Icons.arrow_back, size: 18),
+              ),
               SizedBox(width: 6),
               Text('BACK', style: TextStyle(letterSpacing: 1)),
             ],

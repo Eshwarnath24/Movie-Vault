@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'moviePage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -9,7 +10,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
   final List<String> treandingPosters = [
     "assets/images/joker.jpg",
     "assets/images/master.jpg",
@@ -32,7 +32,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   int _carouselIndex = 0;
-
 
   @override
   Widget build(BuildContext context) {
@@ -177,15 +176,23 @@ class _HomePageState extends State<HomePage> {
                         scrollDirection: Axis.horizontal,
                         itemCount: continueMovies.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            width: 150, // ✅ fixed width
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                continueMovies[index],
-                                fit: BoxFit.cover,
-                                height: 250,
+                          return GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MovieDetailPage(),
+                              ),
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                              width: 150, // ✅ fixed width
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image.asset(
+                                  continueMovies[index],
+                                  fit: BoxFit.cover,
+                                  height: 250,
+                                ),
                               ),
                             ),
                           );
@@ -206,7 +213,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Expanded(
                             child: Text(
-                              "Treanding Movies",
+                              "Trending Movies",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
