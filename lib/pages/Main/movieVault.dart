@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Bottom%20Navbar/movieVaultHome.dart';
+import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Main/movieVaultHome.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 
 class MovieVault extends StatefulWidget {
@@ -41,6 +42,12 @@ class _MovieVaultState extends State<MovieVault> {
           child: ListTile(
             onTap: () {
               print("Add $Option tapped");
+              if (Option == "Log out") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Signin()),
+                );
+              }
             },
             title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),

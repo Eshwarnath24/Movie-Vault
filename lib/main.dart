@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Main/movieVault.dart';
-import 'pages/Main/moviePage.dart';
+import 'package:ott/pages/Authorization/splashScreen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,7 +26,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: MovieVault(),
+      home: SplashScreen(),
     );
   }
 }

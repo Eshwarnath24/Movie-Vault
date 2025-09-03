@@ -95,12 +95,12 @@ class _ProfileState extends State<Profile> {
                 _createProfileOptions(
                   "Edit Profile",
                   Icons.person,
-                  EditProfile(),
+                  EditProfile(changePage: widget.changePage, changeTittle: widget.changeTittle,),
                 ),
                 _createProfileOptions(
                   "Edit Password",
                   Icons.lock,
-                  EditPassword(),
+                  EditPassword(changePage: widget.changePage, changeTittle: widget.changeTittle,),
                 ),
 
                 Container(
