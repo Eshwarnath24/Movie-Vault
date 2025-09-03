@@ -1,46 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
-/// Movie model
-class Movie {
-  final String title;
-  final String description;
-  final double rating;
-  final String bannerUrl;
-  final String videoUrl;
-  final List<String> genres;
-  final List<Episode> episodes;
-
-  Movie({
-    required this.title,
-    required this.description,
-    required this.rating,
-    required this.bannerUrl,
-    required this.videoUrl,
-    required this.genres,
-    required this.episodes,
-  });
-}
-
-/// Episode model
-class Episode {
-  final String title;
-  final String duration;
-  final String imageUrl;
-  final String videoUrl;
-
-  Episode({
-    required this.title,
-    required this.duration,
-    required this.imageUrl,
-    required this.videoUrl,
-  });
-}
 
 class MovieDetailPage extends StatelessWidget {
-  final Movie movie;
-
-  const MovieDetailPage({super.key, required this.movie});
+  const MovieDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +11,8 @@ class MovieDetailPage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            // Header with Play button
-            _Header(movie: movie),
-
+            // Header (image + gradient + back + big play + title/genres)
+            _Header(),
             const SizedBox(height: 16),
 
             // Rating
@@ -61,9 +21,9 @@ class MovieDetailPage extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    movie.rating.toStringAsFixed(1),
-                    style: const TextStyle(
+                  const Text(
+                    '4.0',
+                    style: TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -74,9 +34,7 @@ class MovieDetailPage extends StatelessWidget {
                     children: List.generate(
                       5,
                       (i) => Icon(
-                        i < movie.rating.round()
-                            ? Icons.star
-                            : Icons.star_border,
+                        i < 4 ? Icons.star : Icons.star_border,
                         size: 22,
                         color: Colors.white,
                       ),
@@ -88,11 +46,11 @@ class MovieDetailPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Description
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                movie.description,
-                style: const TextStyle(height: 1.4, color: Colors.white70),
+                "Netflix chronicles the rise of the cocaine trade in Colombia and the gripping real-life stories of drug kingpins of the late ’80s in this raw, gritty original series.",
+                style: TextStyle(height: 1.4, color: Colors.white70),
               ),
             ),
             const SizedBox(height: 20),
@@ -111,15 +69,7 @@ class MovieDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            VideoPlayerPage(videoUrl: movie.videoUrl),
-                      ),
-                    );
-                  },
+                  onPressed: () {},
                   child: const Text(
                     'WATCH NOW',
                     style: TextStyle(
@@ -132,12 +82,12 @@ class MovieDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 26),
 
-            // Episodes
+            // Episodes title + small square action on right
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
-                children: const [
-                  Expanded(
+                children: [
+                  const Expanded(
                     child: Text(
                       'Episodes',
                       style: TextStyle(
@@ -151,17 +101,21 @@ class MovieDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            ...List.generate(
-              movie.episodes.length,
-              (i) => _EpisodeTile(
-                index: i + 1,
-                title: movie.episodes[i].title,
-                duration: movie.episodes[i].duration,
-                imageUrl: movie.episodes[i].imageUrl,
-                videoUrl: movie.episodes[i].videoUrl,
-              ),
+            // Episode list
+            _EpisodeTile(
+              index: 1,
+              title: 'The Kingpin Strategy',
+              duration: '54 min',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1200&auto=format&fit=crop',
             ),
-
+            _EpisodeTile(
+              index: 2,
+              title: 'The Cali KBG',
+              duration: '55 min',
+              imageUrl:
+                  'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?q=80&w=1200&auto=format&fit=crop',
+            ),
             const SizedBox(height: 24),
           ],
         ),
@@ -171,23 +125,22 @@ class MovieDetailPage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  final Movie movie;
-
-  const _Header({required this.movie});
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Banner image
         AspectRatio(
           aspectRatio: 16 / 10,
           child: Ink.image(
-            image: NetworkImage(movie.bannerUrl),
+            image: const NetworkImage(
+              'https://i.imgur.com/IboWjqA.jpg', // banner-like image
+            ),
             fit: BoxFit.cover,
           ),
         ),
 
-        // Gradient
+        // Dark gradient at the bottom
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
@@ -211,61 +164,45 @@ class _Header extends StatelessWidget {
           left: 16,
           top: 12,
           child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, size: 18),
-              ),
-              const SizedBox(width: 6),
-              const Text('BACK', style: TextStyle(letterSpacing: 1)),
+            children: const [
+              Icon(Icons.arrow_back, size: 18),
+              SizedBox(width: 6),
+              Text('BACK', style: TextStyle(letterSpacing: 1)),
             ],
           ),
         ),
 
-        // Play button
-        Positioned.fill(
+        //Big circular play button
+        const Positioned.fill(
           child: Center(
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => VideoPlayerPage(videoUrl: movie.videoUrl),
-                  ),
-                );
-              },
-              child: const CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  size: 36,
-                  color: Colors.black,
-                ),
+            child: CircleAvatar(
+              radius: 28,
+              backgroundColor: Colors.white,
+              child: Icon(
+                Icons.play_arrow_rounded,
+                size: 36,
+                color: Colors.black,
               ),
             ),
           ),
         ),
 
-        // Title + Genres
+        // Title + genres (bottom-left over image)
         Positioned(
           left: 16,
           bottom: 22,
           right: 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: const [
               Text(
-                movie.title,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                ),
+                'Narcos',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
-                movie.genres.join("  |  "),
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                'Drama  |  Biographical  |  Crime Film  |  Crime Fiction',
+                style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
           ),
@@ -280,14 +217,12 @@ class _EpisodeTile extends StatelessWidget {
   final String title;
   final String duration;
   final String imageUrl;
-  final String videoUrl;
 
   const _EpisodeTile({
     required this.index,
     required this.title,
     required this.duration,
     required this.imageUrl,
-    required this.videoUrl,
   });
 
   @override
@@ -296,7 +231,7 @@ class _EpisodeTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
-          // Thumbnail
+          // Thumbnail with circular play button overlay
           Stack(
             children: [
               ClipRRect(
@@ -308,25 +243,15 @@ class _EpisodeTile extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-              Positioned.fill(
+              const Positioned.fill(
                 child: Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => VideoPlayerPage(videoUrl: videoUrl),
-                        ),
-                      );
-                    },
-                    child: const CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.play_arrow_rounded,
-                        size: 20,
-                        color: Colors.black,
-                      ),
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 20,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -335,7 +260,7 @@ class _EpisodeTile extends StatelessWidget {
           ),
           const SizedBox(width: 14),
 
-          // Details
+          // Title + duration + download
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -357,7 +282,7 @@ class _EpisodeTile extends StatelessWidget {
                       size: 18,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'Download',
                       style: TextStyle(
@@ -371,65 +296,6 @@ class _EpisodeTile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Separate video player screen
-class VideoPlayerPage extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoPlayerPage({super.key, required this.videoUrl});
-
-  @override
-  State<VideoPlayerPage> createState() => _VideoPlayerPageState();
-}
-
-class _VideoPlayerPageState extends State<VideoPlayerPage> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
-
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? "dQw4w9WgXcQ",
-      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: YoutubePlayerBuilder(
-        player: YoutubePlayer(
-          controller: _controller,
-          showVideoProgressIndicator: true,
-        ),
-        builder: (context, player) {
-          return SafeArea(
-            child: Column(
-              children: [
-                AspectRatio(aspectRatio: 16 / 9, child: player),
-                const SizedBox(height: 12),
-                const Text(
-                  "Now Playing",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
