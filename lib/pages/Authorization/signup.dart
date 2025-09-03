@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ott/pages/signin.dart';
+import 'package:ott/pages/Authorization/signin.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ott/pages/forgotPassword.dart';
-import 'package:ott/pages/movieVault.dart';
-import 'package:ott/pages/signup.dart';
+import 'package:ott/pages/Authorization/forgotPassword.dart';
+import 'package:ott/pages/Main/movieVault.dart';
+import 'package:ott/pages/Authorization/signup.dart';
 
 class Signin extends StatefulWidget {
   const Signin({super.key});

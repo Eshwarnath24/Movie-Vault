@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/signin.dart';
+import 'package:ott/pages/Authorization/signin.dart';
 import 'codeSentPage.dart';
 
 class ForgetPassword extends StatefulWidget {

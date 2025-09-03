@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/movieVaultHome.dart';
-import 'package:ott/pages/profile.dart';
+import 'package:ott/pages/Main/movieVaultHome.dart';
+import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
@@ -23,7 +23,6 @@ class _MovieVaultState extends State<MovieVault> {
   void changeNavigatingPage(Widget page) {
     setState(() {
       _navigatingPage = page;
-      
     });
   }
 
@@ -152,7 +151,10 @@ class _MovieVaultState extends State<MovieVault> {
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
-                    _navigatingPage = Profile(changePage: changeNavigatingPage, changeTittle: changeTittleName);
+                    _navigatingPage = Profile(
+                      changePage: changeNavigatingPage,
+                      changeTittle: changeTittleName,
+                    );
                   });
                 }
               },
