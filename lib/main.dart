@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/movieVault.dart';
 import 'package:ott/pages/splashScreen.dart';
 
 void main() {

@@ -22,7 +22,7 @@ class _ProfileState extends State<Profile> {
           color: Colors.transparent,
           child: ListTile(
             onTap: () {
-              print("Add ${Option} tapped");
+              print("Add $Option tapped");
             },
             title: Text(Option, style: TextStyle(color: Colors.white)),
             leading: Icon(icon, color:Colors.white,),

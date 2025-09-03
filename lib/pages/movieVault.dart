@@ -33,7 +33,7 @@ class _MovieVaultState extends State<MovieVault> {
           color: Colors.transparent,
           child: ListTile(
             onTap: () {
-              print("Add ${Option} tapped");
+              print("Add $Option tapped");
             },
             title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),

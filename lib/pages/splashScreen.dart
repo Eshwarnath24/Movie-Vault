@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/signin.dart';
+import 'package:ott/pages/signin.dart'; // Make sure this path is correct for your project
 import 'package:video_player/video_player.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -15,30 +15,44 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeVideoPlayer();
+  }
 
+  void _initializeVideoPlayer() {
     _controller = VideoPlayerController.asset('assets/videos/logo.mp4')
       ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized
-        setState(() {});
-        // **Start playing the video automatically**
-        _controller.play();
+        // Safety Check: Ensure the widget is still mounted before calling setState.
+        if (mounted) {
+          setState(() {});
+          // Mute the video to comply with browser autoplay policies.
+          _controller.setVolume(0.0);
+          _controller.play();
+        }
       });
 
-    // **Add a listener to navigate when the video completes**
-    _controller.addListener(() {
-      // Check if the video has finished playing
-      if (_controller.value.position == _controller.value.duration) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Signin()),
-        );
-      }
-    });
+    // Add the listener to navigate when the video ends.
+    _controller.addListener(_checkVideo);
+  }
+
+  void _checkVideo() {
+    // Check if the video has finished playing.
+    if (_controller.value.isInitialized &&
+        _controller.value.position >= _controller.value.duration) {
+      // Important: Remove the listener before navigating to prevent errors
+      // on the disposed widget.
+      _controller.removeListener(_checkVideo);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const Signin()),
+      );
+    }
   }
 
   @override
   void dispose() {
-    // Ensure you dispose of the controller to free up resources.
+    // Clean up the controller and listener when the widget is disposed.
+    _controller.removeListener(_checkVideo);
     _controller.dispose();
     super.dispose();
   }
@@ -46,16 +60,14 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // **Set the background to black**
-      backgroundColor: Color.fromRGBO(29, 29, 29, 1),
+      backgroundColor: const Color.fromRGBO(29, 29, 29, 1),
       body: Center(
-        // Show the video if it's initialized, otherwise show an empty container
         child: _controller.value.isInitialized
             ? AspectRatio(
                 aspectRatio: _controller.value.aspectRatio,
                 child: VideoPlayer(_controller),
               )
-            : Container(),
+            : Container(), // Show an empty container while the video is loading
       ),
     );
   }

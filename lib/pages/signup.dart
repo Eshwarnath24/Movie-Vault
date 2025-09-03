@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ott/pages/signin.dart';
 
 class Signup extends StatefulWidget {
-  Signup({super.key});
+  const Signup({super.key});
 
   @override
   State<Signup> createState() => _SignupState();
@@ -12,7 +12,7 @@ class Signup extends StatefulWidget {
 class _SignupState extends State<Signup> {
   bool _obscureText = true;
 
-  Widget _createTextField(IconData icon, String _hintText) {
+  Widget _createTextField(IconData icon, String hintText) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -28,7 +28,7 @@ class _SignupState extends State<Signup> {
             child: TextField(
               style: TextStyle(color: Colors.white70),
               decoration: InputDecoration(
-                hintText: _hintText,
+                hintText: hintText,
                 hintStyle: TextStyle(fontSize: 15, color: Colors.white70),
                 border: InputBorder.none,
               ),
