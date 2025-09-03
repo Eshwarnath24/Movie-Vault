@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'signin.dart';
 
 class CodeSentPage extends StatelessWidget {
   const CodeSentPage({super.key});
@@ -16,7 +17,10 @@ class CodeSentPage extends StatelessWidget {
 
               Row(
                 children: [
-                  Icon(Icons.arrow_back, size: 20),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.arrow_back, size: 20),
+                  ),
                   SizedBox(width: 6),
                   Text('Back', style: TextStyle(fontSize: 16)),
                 ],
@@ -43,7 +47,6 @@ class CodeSentPage extends StatelessWidget {
                 ),
               ),
 
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -62,10 +65,16 @@ class CodeSentPage extends StatelessWidget {
                       color: Colors.blue,
                       shape: BoxShape.circle,
                     ),
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_forward),
-                      color: Colors.white,
-                      onPressed: () {},
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Signin()),
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_forward),
+                        color: Colors.white,
+                        onPressed: () {},
+                      ),
                     ),
                   ),
                 ],
@@ -74,23 +83,25 @@ class CodeSentPage extends StatelessWidget {
               const SizedBox(height: 20),
 
               Center(
-                child: RichText(
-                  text: TextSpan(
-                    text: "Already have an account? ",
-                    style: const TextStyle(color: Colors.white70),
-                    children: [
-                      TextSpan(
-                        text: "Sign-In here!",
-                        style: const TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Already have an account?",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Signin()),
                       ),
-                    ],
-                  ),
+                      child: const Text(
+                        "Sign-in here!",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
               const SizedBox(height: 20),
             ],
           ),

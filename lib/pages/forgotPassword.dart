@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:ott/pages/signin.dart';
+import 'codeSentPage.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -8,7 +10,7 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
-  List<bool> isSelected = [true, false]; // [Email, Phone]
+  List<bool> isSelected = [true, false];
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               children: [
                 const SizedBox(height: 20),
                 GestureDetector(
-                  onTap: () => Navigator.pop(context), // ✅ this will now work
+                  onTap: () => Navigator.pop(context),
                   child: const Row(
                     children: [
                       Icon(Icons.arrow_back),
@@ -47,43 +49,37 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                 ),
                 const SizedBox(height: 70),
 
-                // Toggle buttons
+                // ✅ Responsive ToggleButtons
                 Center(
-                  child: ToggleButtons(
-                    borderRadius: BorderRadius.circular(10),
-                    fillColor: const Color.fromARGB(255, 66, 66, 66),
-                    selectedColor: Colors.white,
-                    color: Colors.white70,
-                    isSelected: isSelected,
-                    onPressed: (int index) {
-                      setState(() {
-                        for (int i = 0; i < isSelected.length; i++) {
-                          isSelected[i] = i == index;
-                        }
-                      });
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      double buttonWidth = (constraints.maxWidth - 20) / 2;
+                      return ToggleButtons(
+                        borderRadius: BorderRadius.circular(10),
+                        fillColor: const Color.fromARGB(255, 66, 66, 66),
+                        selectedColor: Colors.white,
+                        color: Colors.white70,
+                        constraints: BoxConstraints(
+                          minWidth: buttonWidth,
+                          minHeight: 40,
+                        ),
+                        isSelected: isSelected,
+                        onPressed: (int index) {
+                          setState(() {
+                            for (int i = 0; i < isSelected.length; i++) {
+                              isSelected[i] = i == index;
+                            }
+                          });
+                        },
+                        children: const [Text("Email"), Text("Phone")],
+                      );
                     },
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 95,
-                          vertical: 6,
-                        ),
-                        child: Text("Email"),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 95,
-                          vertical: 6,
-                        ),
-                        child: Text("Phone"),
-                      ),
-                    ],
                   ),
                 ),
 
                 const SizedBox(height: 50),
 
-                // Change text field based on selection
+                // TextField based on toggle selection
                 isSelected[0]
                     ? _buildTextField('Enter Email*', icon: Icons.email)
                     : _buildTextField(
@@ -91,6 +87,75 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
                       ),
+
+                const SizedBox(height: 8),
+                const Text(
+                  "We’ll send you a message code to set \na reset your new password",
+                  style: TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                const SizedBox(height: 40),
+
+                // Send Code Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Send Code",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue,
+                      ),
+                      child: GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CodeSentPage(),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                // Sign-in footer
+                Center(
+                  child: Column(
+                    children: [
+                      const Text(
+                        "Already have an account?",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Signin(),
+                          ),
+                        ),
+                        child: const Text(
+                          "Sign-in here!",
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
