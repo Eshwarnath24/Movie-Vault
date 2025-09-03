@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/movieVaultHome.dart';
-import 'package:ott/pages/profile.dart';
+import 'package:ott/pages/Bottom%20Navbar/movieVaultHome.dart';
+import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});

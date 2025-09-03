@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/movieVault.dart';
-import 'pages/moviePage.dart';
+import 'package:ott/pages/Main/movieVault.dart';
+import 'pages/Main/moviePage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -27,7 +27,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: MovieDetailPage(),
+      home: MovieVault(),
     );
   }
 }

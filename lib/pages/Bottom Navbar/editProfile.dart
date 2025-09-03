@@ -8,7 +8,6 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-
   Widget _createProfileEditOptions(String hintText, IconData icon) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -19,6 +18,7 @@ class _EditProfileState extends State<EditProfile> {
       ),
       child: Row(
         children: [
+          SizedBox(width: 10),
           Icon(icon, size: 20, color: Colors.white70),
           SizedBox(width: 10),
           Expanded(
@@ -32,12 +32,16 @@ class _EditProfileState extends State<EditProfile> {
             ),
           ),
           SizedBox(width: 10),
-          Icon(Icons.mode_edit_outline_outlined, size: 20, color: Colors.white70),
+          Icon(
+            Icons.mode_edit_outline_outlined,
+            size: 20,
+            color: Colors.white70,
+          ),
+          SizedBox(width: 10),
         ],
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -64,24 +68,19 @@ class _EditProfileState extends State<EditProfile> {
                     "Edit",
                     style: TextStyle(color: Colors.white70, fontSize: 12),
                   ),
-                  SizedBox(width: 5,),
-                  Icon(Icons.edit, size: 12,),
+                  SizedBox(width: 5),
+                  Icon(Icons.edit, size: 12),
                 ],
               ),
             ],
           ),
           SizedBox(height: 40),
+
           Expanded(
             child: ListView(
               children: [
-                _createProfileEditOptions(
-                  "Eshwarnath Gajula",
-                  Icons.person,
-                ),
-                _createProfileEditOptions(
-                  "user123@gmail.com",
-                  Icons.mail,
-                ),
+                _createProfileEditOptions("Eshwarnath Gajula", Icons.person),
+                _createProfileEditOptions("user123@gmail.com", Icons.mail),
                 _createProfileEditOptions(
                   "1234567890",
                   Icons.phone_android_rounded,
@@ -89,6 +88,31 @@ class _EditProfileState extends State<EditProfile> {
                 _createProfileEditOptions(
                   "123-B Block DHA-Amrita",
                   Icons.maps_home_work_outlined,
+                ),
+
+                SizedBox(height: 10,),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MaterialButton(
+                      onPressed: () {
+                        print("Save tapped");
+                        // You can save the controller.text value here
+                      },
+                      minWidth: MediaQuery.of(context).size.width / 4,
+                      color: Colors.blue, // button background
+                      textColor: Colors.white, // text color
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text("SAVE", style: TextStyle(fontSize: 16)),
+                    ),
+                  ],
                 ),
               ],
             ),

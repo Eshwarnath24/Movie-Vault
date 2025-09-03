@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/editPassword.dart';
-import 'package:ott/pages/editProfile.dart';
-import 'package:ott/pages/signin.dart';
+import 'package:ott/pages/Bottom%20Navbar/editPassword.dart';
+import 'package:ott/pages/Bottom%20Navbar/editProfile.dart';
+import 'package:ott/pages/Authorization/signin.dart';
 
 class Profile extends StatefulWidget {
   final void Function(Widget) changePage;
