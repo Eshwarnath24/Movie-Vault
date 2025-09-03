@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Authorization/signin.dart';
-import 'package:ott/pages/Bottom%20Navbar/movieVaultHome.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Main/movieVaultHome.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
@@ -12,7 +11,7 @@ class MovieVault extends StatefulWidget {
 
 class _MovieVaultState extends State<MovieVault> {
   int _navigationIndex = 0;
-  // Widget _navigatingPage = HomePage();
+  Widget _navigatingPage = HomePage();
   String _tittleName = "Movie Vault";
 
   void changeTittleName(String newName) {
@@ -22,9 +21,7 @@ class _MovieVaultState extends State<MovieVault> {
   }
 
   void changeNavigatingPage(Widget page) {
-    setState(() {
-      // _navigatingPage = page;
-    });
+    _navigatingPage = page;
   }
 
   Widget _createMenuOptions(String Option, IconData icon, {Color? color}) {
@@ -41,12 +38,6 @@ class _MovieVaultState extends State<MovieVault> {
           child: ListTile(
             onTap: () {
               print("Add $Option tapped");
-              if (Option == "Log out") {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Signin()),
-                );
-              }
             },
             title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),
@@ -119,7 +110,8 @@ class _MovieVaultState extends State<MovieVault> {
           ),
         ),
 
-        // body: _navigatingPage,
+        body: _navigatingPage,
+
         bottomNavigationBar: Container(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
@@ -144,7 +136,7 @@ class _MovieVaultState extends State<MovieVault> {
                 if (_navigationIndex == 0) {
                   changeTittleName("Movie Vault");
                   setState(() {
-                    // _navigatingPage = HomePage();
+                    _navigatingPage = HomePage();
                   });
                 } else if (_navigationIndex == 1) {
                   // setState(() {
@@ -157,10 +149,7 @@ class _MovieVaultState extends State<MovieVault> {
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
-                    // _navigatingPage = Profile(
-                    //   changePage: changeNavigatingPage,
-                    //   changeTittle: changeTittleName,
-                    // );
+                    _navigatingPage = Profile(changePage: changeNavigatingPage, changeTittle: changeTittleName,);
                   });
                 }
               },
@@ -186,3 +175,5 @@ class _MovieVaultState extends State<MovieVault> {
     );
   }
 }
+
+
