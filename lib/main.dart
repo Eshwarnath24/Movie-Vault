@@ -27,7 +27,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: MovieVault(),
+      home: SplashScreen(),
     );
   }
 }

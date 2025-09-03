@@ -70,9 +70,91 @@ class _HomePageState extends State<HomePage> {
       videoUrl: "https://www.youtube.com/watch?v=1_iUFT3nWHk",
       episodes: [],
     ),
+    Movie(
+      title: "Star Wars",
+      bannerUrl: "assets/images/star_wars.jpg",
+      rating: 4.8,
+      genres: ["Sci-Fi", "Adventure"],
+      description:
+          "The epic space saga of Jedi, Sith, and the balance of the Force...",
+      videoUrl: "https://www.youtube.com/watch?v=8Qn_spdM5Zg",
+      episodes: [],
+    ),
+    Movie(
+      title: "Titanic",
+      bannerUrl: "assets/images/titanic.jpg",
+      rating: 4.7,
+      genres: ["Romance", "Drama"],
+      description: "A love story unfolds on the doomed RMS Titanic...",
+      videoUrl: "https://www.youtube.com/watch?v=kVrqfYjkTdQ",
+      episodes: [],
+    ),
   ];
 
   int _carouselIndex = 0;
+
+  Widget _buildMovieSection(String title, List<Movie> movies) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 250,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: movies.length,
+            itemBuilder: (context, index) {
+              final movie = movies[index];
+              return GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MovieDetailPage(movie: movie),
+                  ),
+                ),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                  width: 150,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset(
+                      movie.bannerUrl,
+                      fit: BoxFit.cover,
+                      height: 250,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,66 +271,4 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMovieSection(String title, List<Movie> movies) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: movies.length,
-            itemBuilder: (context, index) {
-              final movie = movies[index];
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MovieDetailPage(movie: movie),
-                  ),
-                ),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 150,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.asset(
-                      movie.bannerUrl,
-                      fit: BoxFit.cover,
-                      height: 250,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
 }
