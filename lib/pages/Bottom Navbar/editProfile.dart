@@ -1,14 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 
 class EditProfile extends StatefulWidget {
-  const EditProfile({super.key});
+  final void Function(Widget) changePage;
+  final void Function(String) changeTittle;
+
+  const EditProfile({
+    super.key,
+    required this.changePage,
+    required this.changeTittle,
+  });
 
   @override
   State<EditProfile> createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile> {
-  Widget _createProfileEditOptions(String hintText, IconData icon) {
+  List<TextEditingController> controllers = [
+    TextEditingController(text: "Eshwarnath Gajula"),
+    TextEditingController(text: "user123@gmail.com"),
+    TextEditingController(text: "1234567890"),
+    TextEditingController(text: "123-B Block DHA-Amrita"),
+  ];
+
+  Widget _createProfileEditOptions(
+    int index,
+    IconData icon,
+  ) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -23,12 +41,9 @@ class _EditProfileState extends State<EditProfile> {
           SizedBox(width: 10),
           Expanded(
             child: TextField(
+              controller: controllers[index], // ✅ shows pre-filled value
               style: TextStyle(color: Colors.white70),
-              decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(fontSize: 15, color: Colors.white70),
-                border: InputBorder.none,
-              ),
+              decoration: InputDecoration(border: InputBorder.none),
             ),
           ),
           SizedBox(width: 10),
@@ -79,18 +94,18 @@ class _EditProfileState extends State<EditProfile> {
           Expanded(
             child: ListView(
               children: [
-                _createProfileEditOptions("Eshwarnath Gajula", Icons.person),
-                _createProfileEditOptions("user123@gmail.com", Icons.mail),
+                _createProfileEditOptions(0, Icons.person),
+                _createProfileEditOptions(1, Icons.mail),
                 _createProfileEditOptions(
-                  "1234567890",
+                  2,
                   Icons.phone_android_rounded,
                 ),
                 _createProfileEditOptions(
-                  "123-B Block DHA-Amrita",
+                  3,
                   Icons.maps_home_work_outlined,
                 ),
 
-                SizedBox(height: 10,),
+                SizedBox(height: 10),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -98,6 +113,13 @@ class _EditProfileState extends State<EditProfile> {
                     MaterialButton(
                       onPressed: () {
                         print("Save tapped");
+                        widget.changePage(
+                          Profile(
+                            changePage: widget.changePage,
+                            changeTittle: widget.changeTittle,
+                          ),
+                        );
+                        widget.changeTittle("Profile");
                         // You can save the controller.text value here
                       },
                       minWidth: MediaQuery.of(context).size.width / 4,
