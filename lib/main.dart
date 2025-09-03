@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/movieVault.dart';
-import 'package:ott/pages/splashScreen.dart';
+import 'pages/moviePage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -14,6 +14,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        colorScheme: const ColorScheme.dark(primary: Colors.blue),
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Color.fromRGBO(29, 29, 29, 1),
         primaryColor: Colors.white70,
@@ -26,7 +27,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: MovieVault(),
+      home: MovieDetailPage(),
     );
   }
 }
