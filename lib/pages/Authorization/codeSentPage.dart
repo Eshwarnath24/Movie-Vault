@@ -41,10 +41,7 @@ class CodeSentPage extends StatelessWidget {
               ),
 
               Center(
-                child: Image.network(
-                  "https://png.pngtree.com/png-clipart/20221016/ourmid/pngtree-3d-flying-email-envelope-png-image_6348681.png",
-                  height: 250,
-                ),
+                child: Image.asset("assets/images/codeSents.jpg", height: 250),
               ),
 
               Row(
