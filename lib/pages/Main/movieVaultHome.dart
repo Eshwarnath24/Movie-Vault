@@ -11,6 +11,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<Movie> caroselMovies = [
+    Movie(
+      title: "Pokiri",
+      bannerUrl: "assets/images/pokiri.jpg",
+      rating: 4.7,
+      genres: ["Action", "Thriller", "Romance"],
+      description:
+          "An undercover cop infiltrates the underworld to take down a dangerous gangster.",
+      videoUrl: "https://www.youtube.com/watch?v=BRQhY0xfq1Y",
+      episodes: [],
+    ),
+    Movie(
+      title: "Athadu",
+      bannerUrl: "assets/images/athadu.jpg",
+      rating: 4.6,
+      genres: ["Action", "Thriller", "Drama"],
+      description:
+          "A professional assassin on the run assumes another man's identity and finds love and redemption.",
+      videoUrl: "https://www.youtube.com/watch?v=ZyqNQQjVfqU",
+      episodes: [],
+    ),
+    Movie(
+      title: "Okkadu",
+      bannerUrl: "assets/images/okkadu.jpg",
+      rating: 4.5,
+      genres: ["Action", "Romance", "Drama"],
+      description:
+          "A kabaddi player rescues a girl from an influential faction leader and fights against all odds.",
+      videoUrl: "https://www.youtube.com/watch?v=lx4tRtSXxIY",
+      episodes: [],
+    ),
+    Movie(
+      title: "Srimanthudu",
+      bannerUrl: "assets/images/srimanthudu.jpg",
+      rating: 4.6,
+      genres: ["Action", "Drama", "Family"],
+      description:
+          "A wealthy young man adopts a village and works to improve it.",
+      videoUrl: "https://www.youtube.com/watch?v=kz9K2V2EJv4",
+      episodes: [],
+    ),
+    Movie(
+      title: "Murari",
+      bannerUrl: "assets/images/murari.jpg",
+      rating: 4.4,
+      genres: ["Drama", "Family", "Romance"],
+      description:
+          "A young man struggles to overcome a family curse while finding love and peace.",
+      videoUrl: "https://www.youtube.com/watch?v=kzFCXs0-9M0",
+      episodes: [],
+    ),
+  ];
+
   final List<Movie> trendingMovies = [
     Movie(
       title: "Joker",
@@ -63,69 +116,71 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMovieSection(String title, List<Movie> movies) {
-    return movies.isEmpty ? Container() : Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
+    return movies.isEmpty
+        ? Container()
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 18,
-                  color: Colors.white,
+              SizedBox(
+                height: 250,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: movies.length,
+                  itemBuilder: (context, index) {
+                    final movie = movies[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MovieDetailPage(movie: movie),
+                          ),
+                        );
+                        _addToContinueWatching(movie);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        width: 150,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.asset(
+                            movie.bannerUrl,
+                            fit: BoxFit.cover,
+                            height: 250,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
-          ),
-        ),
-        SizedBox(
-          height: 250,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: movies.length,
-            itemBuilder: (context, index) {
-              final movie = movies[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MovieDetailPage(movie: movie),
-                    ),
-                  );
-                  _addToContinueWatching(movie);
-                },
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  width: 150,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.asset(
-                      movie.bannerUrl,
-                      fit: BoxFit.cover,
-                      height: 250,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
+          );
   }
 
   @override
@@ -159,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                       });
                     },
                   ),
-                  items: trendingMovies.map((movie) {
+                  items: caroselMovies.map((movie) {
                     return GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -213,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                 // 🔹 Indicator Dots
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: trendingMovies.asMap().entries.map((entry) {
+                  children: caroselMovies.asMap().entries.map((entry) {
                     return Container(
                       width: _carouselIndex == entry.key ? 16 : 8,
                       height: 8,
