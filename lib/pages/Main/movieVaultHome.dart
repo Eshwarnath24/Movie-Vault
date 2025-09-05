@@ -51,50 +51,19 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  final List<Movie> continueMovies = [
-    Movie(
-      title: "Joker",
-      bannerUrl: "assets/images/joker.jpg",
-      rating: 4.5,
-      genres: ["Drama", "Crime", "Thriller"],
-      description: "Arthur Fleck, a failed comedian, descends into madness...",
-      videoUrl: "https://www.youtube.com/watch?v=zAGVQLHvwOY",
-      episodes: [],
-    ),
-    Movie(
-      title: "Master",
-      bannerUrl: "assets/images/master.jpg",
-      rating: 4.2,
-      genres: ["Action", "Thriller"],
-      description: "An alcoholic professor is sent to a juvenile school...",
-      videoUrl: "https://www.youtube.com/watch?v=1_iUFT3nWHk",
-      episodes: [],
-    ),
-    Movie(
-      title: "Star Wars",
-      bannerUrl: "assets/images/star_wars.jpg",
-      rating: 4.8,
-      genres: ["Sci-Fi", "Adventure"],
-      description:
-          "The epic space saga of Jedi, Sith, and the balance of the Force...",
-      videoUrl: "https://www.youtube.com/watch?v=8Qn_spdM5Zg",
-      episodes: [],
-    ),
-    Movie(
-      title: "Titanic",
-      bannerUrl: "assets/images/titanic.jpg",
-      rating: 4.7,
-      genres: ["Romance", "Drama"],
-      description: "A love story unfolds on the doomed RMS Titanic...",
-      videoUrl: "https://www.youtube.com/watch?v=kVrqfYjkTdQ",
-      episodes: [],
-    ),
-  ];
+  final List<Movie> continueMovies = [];
 
   int _carouselIndex = 0;
 
+  void _addToContinueWatching(Movie movie) {
+    setState(() {
+      continueMovies.remove(movie);
+      continueMovies.insert(0, movie);
+    });
+  }
+
   Widget _buildMovieSection(String title, List<Movie> movies) {
-    return Column(
+    return movies.isEmpty ? Container() : Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -130,12 +99,15 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final movie = movies[index];
               return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MovieDetailPage(movie: movie),
-                  ),
-                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MovieDetailPage(movie: movie),
+                    ),
+                  );
+                  _addToContinueWatching(movie);
+                },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   width: 150,
@@ -161,10 +133,9 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
       child: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          scrollbars: false,
-          overscroll: false,
-        ),
+        behavior: ScrollConfiguration.of(
+          context,
+        ).copyWith(scrollbars: false, overscroll: false),
         child: ListView(
           children: [
             // 🔹 Carousel Section
@@ -179,7 +150,9 @@ class _HomePageState extends State<HomePage> {
                     aspectRatio: 4 / 6,
                     autoPlayCurve: Curves.fastOutSlowIn,
                     enableInfiniteScroll: true,
-                    autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                    autoPlayAnimationDuration: const Duration(
+                      milliseconds: 800,
+                    ),
                     onPageChanged: (index, reason) {
                       setState(() {
                         _carouselIndex = index;
@@ -188,12 +161,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                   items: trendingMovies.map((movie) {
                     return GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MovieDetailPage(movie: movie),
-                        ),
-                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MovieDetailPage(movie: movie),
+                          ),
+                        );
+                        _addToContinueWatching(movie);
+                      },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15),
                         child: Stack(
@@ -241,8 +217,10 @@ class _HomePageState extends State<HomePage> {
                     return Container(
                       width: _carouselIndex == entry.key ? 16 : 8,
                       height: 8,
-                      margin:
-                          const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 4,
+                      ),
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
                         borderRadius: BorderRadius.circular(4),
@@ -270,5 +248,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 }
