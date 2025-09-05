@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ott/pages/Authorization/forgotPassword.dart';
@@ -35,7 +34,7 @@ class _SigninState extends State<Signin> {
           borderSide: BorderSide.none,
         ),
       ),
-      obscureText: isPassword,
+      obscureText: isPassword, // hides text
     );
   }
 
@@ -176,28 +175,23 @@ class _SigninState extends State<Signin> {
                 Center(
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 20.0),
-                    child: RichText(
-                      text: TextSpan(
-                        text: "If you don't have an account you can ",
-                        style: TextStyle(color: Colors.white70),
-                        children: [
-                          TextSpan(
-                            text: 'Sign-Up here!',
-                            style: TextStyle(color: Colors.blue),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                // Navigate to SignUp page
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        Signup(), // replace with your page
-                                  ),
-                                );
-                              },
+                    child: Column(
+                      children: [
+                        Text(
+                          "If you don't have an account you can",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Signup()),
                           ),
-                        ],
-                      ),
+                          child: Text(
+                            "Sign-Up here!",
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

@@ -12,8 +12,8 @@ dependencies:
   flutter_svg: ^2.0.7
   carousel_slider: ^5.0.0
   video_player: ^2.8.6
-  youtube_player_flutter: ^9.1.2 
-  flutter_inappwebview: ^6.0.0   
+  youtube_player_flutter: ^9.1.2
+
 
 
 dev_dependencies:
@@ -31,3 +31,4 @@ flutter:
     - assets/images/master.jpg
     - assets/images/star_wars.jpg
     - assets/images/titanic.jpg
+    - assets/images/codeSent.png

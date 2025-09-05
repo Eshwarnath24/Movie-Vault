@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ott/pages/Main/movie.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-
-
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
 
@@ -137,107 +135,69 @@ class MovieDetailPage extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
+class _Header extends StatefulWidget {
   final Movie movie;
-
   const _Header({required this.movie});
 
   @override
+  State<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<_Header> {
+  late YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoId = YoutubePlayer.convertUrlToId(widget.movie.videoUrl.trim());
+    print("Header Video ID: $videoId"); // Debug print
+
+    _controller = YoutubePlayerController(
+      initialVideoId: videoId ?? "zAGVQLHvwOY", // fallback Joker ID
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        forceHD: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AspectRatio(
-          aspectRatio: 16 / 10,
-          child: Ink.image(
-            image: NetworkImage(movie.bannerUrl),
-            fit: BoxFit.cover,
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Stack(
+        children: [
+          YoutubePlayer(
+            controller: _controller,
+            showVideoProgressIndicator: true,
           ),
-        ),
-
-        // Gradient
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.2),
-                  Colors.black.withOpacity(0.65),
-                  const Color(0xFF0D0D0D),
-                ],
-                stops: const [0.0, 0.5, 0.8, 1.0],
-              ),
-            ),
-          ),
-        ),
-
-        // Back
-        Positioned(
-          left: 16,
-          top: 12,
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, size: 18),
-              ),
-              const SizedBox(width: 6),
-              const Text('BACK', style: TextStyle(letterSpacing: 1)),
-            ],
-          ),
-        ),
-
-        // Play button
-        Positioned.fill(
-          child: Center(
+          Positioned(
+            top: 8,
+            left: 8,
             child: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => VideoPlayerPage(videoUrl: movie.videoUrl),
-                  ),
-                );
+                Navigator.pop(context);
               },
-              child: const CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.play_arrow_rounded,
-                  size: 36,
-                  color: Colors.black,
-                ),
+              child: Row(
+                children: [
+                  Icon(Icons.arrow_back, color: Colors.white),
+                  Text(
+                    " Back",
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-
-        // Title + Genres
-        Positioned(
-          left: 16,
-          bottom: 22,
-          right: 16,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                movie.title,
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                movie.genres.join("  |  "),
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -359,12 +319,16 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
+    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl.trim());
+    print("VideoPlayerPage Video ID: $videoId"); // Debug print
 
     _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? "dQw4w9WgXcQ",
-      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
+      initialVideoId: videoId ?? "zAGVQLHvwOY", // fallback Joker ID
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        forceHD: true,
+      ),
     );
   }
 

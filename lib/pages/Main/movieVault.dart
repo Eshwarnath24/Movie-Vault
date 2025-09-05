@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Authorization/signin.dart';
 import 'package:ott/pages/Main/movieVaultHome.dart';
+import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
@@ -21,7 +22,9 @@ class _MovieVaultState extends State<MovieVault> {
   }
 
   void changeNavigatingPage(Widget page) {
-    _navigatingPage = page;
+    setState(() {
+      _navigatingPage = page;
+    });
   }
 
   Widget _createMenuOptions(String Option, IconData icon, {Color? color}) {
@@ -38,6 +41,12 @@ class _MovieVaultState extends State<MovieVault> {
           child: ListTile(
             onTap: () {
               print("Add $Option tapped");
+              if (Option == "Log out") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Signin()),
+                );
+              }
             },
             title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),
@@ -149,7 +158,10 @@ class _MovieVaultState extends State<MovieVault> {
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
-                    _navigatingPage = Profile(changePage: changeNavigatingPage, changeTittle: changeTittleName,);
+                    _navigatingPage = Profile(
+                      changePage: changeNavigatingPage,
+                      changeTittle: changeTittleName,
+                    );
                   });
                 }
               },
@@ -175,5 +187,3 @@ class _MovieVaultState extends State<MovieVault> {
     );
   }
 }
-
-
