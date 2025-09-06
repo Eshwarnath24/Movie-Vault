@@ -41,7 +41,7 @@ class CodeSentPage extends StatelessWidget {
               ),
 
               Center(
-                child: Image.asset("assets/images/codeSents.jpg", height: 250),
+                child: Image.asset("assets/images/codeSent.png", height: 250),
               ),
 
               Row(
