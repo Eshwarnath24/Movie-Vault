@@ -62,16 +62,17 @@ class CodeSentPage extends StatelessWidget {
                       color: Colors.blue,
                       shape: BoxShape.circle,
                     ),
-                    child: GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const Signin()),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_forward),
-                        color: Colors.white,
-                        onPressed: () {},
-                      ),
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_forward),
+                      color: Colors.white,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Signin(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],

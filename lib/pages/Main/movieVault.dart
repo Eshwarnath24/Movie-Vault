@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Authorization/signin.dart';
 import 'package:ott/pages/Main/movieVaultHome.dart';
+import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Menu/contactSupport.dart';
+import 'package:ott/pages/Menu/deleteAccount.dart';
+import 'package:ott/pages/Menu/language.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
@@ -21,10 +25,17 @@ class _MovieVaultState extends State<MovieVault> {
   }
 
   void changeNavigatingPage(Widget page) {
-    _navigatingPage = page;
+    setState(() {
+      _navigatingPage = page;
+    });
   }
 
-  Widget _createMenuOptions(String Option, IconData icon, {Color? color}) {
+  Widget _createMenuOptions(
+    String Option,
+    IconData icon,
+    Widget navigateToPage, {
+    Color? color,
+  }) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       decoration: BoxDecoration(
@@ -38,6 +49,10 @@ class _MovieVaultState extends State<MovieVault> {
           child: ListTile(
             onTap: () {
               print("Add $Option tapped");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => navigateToPage),
+              );
             },
             title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),
@@ -94,17 +109,21 @@ class _MovieVaultState extends State<MovieVault> {
 
               SizedBox(height: 60),
 
-              _createMenuOptions("Add Account", Icons.person_add_alt),
+              _createMenuOptions("Delete Account", Icons.delete_forever, DeleteAccount(title: "Delete Account")),
               _createMenuOptions(
                 "Contact Support",
                 Icons.support_agent_rounded,
+                ContactSupport(title: "Contact Support")
               ),
-              _createMenuOptions("Languages", Icons.g_translate_rounded),
-              _createMenuOptions("Profile", Icons.account_circle_rounded),
-
+              _createMenuOptions("Languages", Icons.g_translate_rounded, changeLanguage(title: "Languages")),
+              // _createMenuOptions("Profile", Icons.account_circle_rounded),
               SizedBox(height: 50),
 
-              _createMenuOptions("Log out", Icons.arrow_forward_rounded),
+              _createMenuOptions(
+                "Log out",
+                Icons.arrow_forward_rounded,
+                Signin(),
+              ),
               SizedBox(height: 20),
             ],
           ),
@@ -149,7 +168,10 @@ class _MovieVaultState extends State<MovieVault> {
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
-                    _navigatingPage = Profile(changePage: changeNavigatingPage, changeTittle: changeTittleName,);
+                    _navigatingPage = Profile(
+                      changePage: changeNavigatingPage,
+                      changeTittle: changeTittleName,
+                    );
                   });
                 }
               },
@@ -175,5 +197,3 @@ class _MovieVaultState extends State<MovieVault> {
     );
   }
 }
-
-

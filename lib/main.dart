@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/splashScreen.dart';
-// import 'pages/downloadPage.dart';
-import 'pages/searchPage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,7 +26,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: OttSearchPage(),
+      home: SplashScreen(),
     );
   }
 }
