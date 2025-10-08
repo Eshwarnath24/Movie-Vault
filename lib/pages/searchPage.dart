@@ -2,25 +2,23 @@ import 'package:flutter/material.dart';
 
 class ContentItem {
   final String title;
-  final String type; // movie, series, kids, documentary, original
+  final String type;
   final List<String> genres;
   final String language;
-  final int year;
-  final double rating; // IMDb-like 0-10
-  final int durationMins; // total (movie) or avg episode
+  final double rating;
+  final int durationMins;
   final List<String> cast;
-  final List<String> crew; // names like Director, Writer
+  final String imagePath;
 
   const ContentItem({
     required this.title,
     required this.type,
     required this.genres,
     required this.language,
-    required this.year,
     required this.rating,
     required this.durationMins,
     required this.cast,
-    required this.crew,
+    required this.imagePath,
   });
 }
 
@@ -30,66 +28,60 @@ final List<ContentItem> kCatalog = [
     type: 'movie',
     genres: ['Action', 'Thriller'],
     language: 'Tamil',
-    year: 2021,
     rating: 7.2,
     durationMins: 179,
     cast: ['Vijay', 'Vijay Sethupathi', 'Malavika Mohanan'],
-    crew: ['Lokesh Kanagaraj'],
+    imagePath: 'assets/images/master.jpg',
   ),
   ContentItem(
     title: 'Star Wars: A New Hope',
     type: 'movie',
     genres: ['Sci-Fi', 'Adventure'],
     language: 'English',
-    year: 1977,
     rating: 8.6,
     durationMins: 121,
     cast: ['Mark Hamill', 'Harrison Ford', 'Carrie Fisher'],
-    crew: ['George Lucas', 'John Williams'],
+    imagePath: 'assets/images/star_wars.jpg',
   ),
   ContentItem(
     title: 'Titanic',
     type: 'movie',
     genres: ['Romance', 'Drama'],
     language: 'English',
-    year: 1997,
     rating: 7.9,
     durationMins: 194,
     cast: ['Leonardo DiCaprio', 'Kate Winslet'],
-    crew: ['James Cameron'],
+    imagePath: 'assets/images/titanic.jpg',
   ),
   ContentItem(
     title: 'Stranger Things',
     type: 'series',
     genres: ['Sci-Fi', 'Horror', 'Drama'],
     language: 'English',
-    year: 2016,
     rating: 8.7,
     durationMins: 50,
     cast: ['Millie Bobby Brown', 'David Harbour', 'Winona Ryder'],
-    crew: ['Duffer Brothers'],
+    imagePath: 'assets/images/stranger_things.jpg',
   ),
   ContentItem(
     title: 'Chhota Bheem',
     type: 'kids',
     genres: ['Animation', 'Adventure'],
     language: 'Hindi',
-    year: 2008,
     rating: 6.5,
     durationMins: 22,
     cast: [],
-    crew: [],
+    imagePath: 'assets/images/Chhota_Bheem.jpg',
   ),
   ContentItem(
     title: 'Planet Earth',
     type: 'documentary',
     genres: ['Nature', 'Documentary'],
     language: 'English',
-    year: 2006,
     rating: 9.3,
     durationMins: 58,
     cast: ['David Attenborough'],
-    crew: ['Alastair Fothergill'],
+    imagePath: 'assets/images/planetEarth.jpg',
   ),
 ];
 
@@ -126,7 +118,6 @@ class _OttSearchPageState extends State<OttSearchPage> {
   final Set<String> _selectedGenres = {};
   final Set<String> _selectedLanguages = {};
 
-  RangeValues _yearRange = const RangeValues(1970, 2025);
   double _minRating = 0; // 0..10
   String _durationBucket = 'any';
 
@@ -149,12 +140,6 @@ class _OttSearchPageState extends State<OttSearchPage> {
     );
   }
 
-  @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
-  }
-
   List<ContentItem> get _results {
     String q = _normalized(_search.text.trim());
 
@@ -170,10 +155,6 @@ class _OttSearchPageState extends State<OttSearchPage> {
 
       if (_selectedLanguages.isNotEmpty &&
           !_selectedLanguages.contains(c.language)) {
-        return false;
-      }
-
-      if (c.year < _yearRange.start || c.year > _yearRange.end) {
         return false;
       }
 
@@ -194,7 +175,7 @@ class _OttSearchPageState extends State<OttSearchPage> {
       if (q.isEmpty) return true;
 
       return _normalized(c.title).contains(q);
-    }).toList()..sort((a, b) => b.rating.compareTo(a.rating));
+    }).toList();
   }
 
   String _normalized(String s) {
@@ -217,10 +198,79 @@ class _OttSearchPageState extends State<OttSearchPage> {
   Widget build(BuildContext context) {
     final results = _results;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-        actions: [
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildSearchBar(),
+          if (_showSuggestions) _buildSuggestions(),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildChipsSection(),
+                  if (_recentSearches.isNotEmpty) _buildRecentAndTrending(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    child: Row(
+                      children: [
+                        Text(
+                          'Results',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '(${results.length})',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  if (results.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Center(
+                        child: Text('No results. Try adjusting filters.'),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true, // important since inside scroll view
+                      physics:
+                          const NeverScrollableScrollPhysics(), //  disable nested scroll
+                      itemCount: results.length,
+                      itemBuilder: (context, i) =>
+                          _ResultTile(item: results[i]),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _search,
+              onSubmitted: (_) => _submitSearch(),
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search titles',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                isDense: true,
+              ),
+            ),
+          ),
           IconButton(
             tooltip: 'Voice search',
             icon: const Icon(Icons.mic_outlined),
@@ -238,83 +288,10 @@ class _OttSearchPageState extends State<OttSearchPage> {
                 _selectedTypes.clear();
                 _selectedGenres.clear();
                 _selectedLanguages.clear();
-                _yearRange = const RangeValues(1970, 2025);
                 _minRating = 0;
                 _durationBucket = 'any';
               });
             },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildSearchBar(),
-            if (_showSuggestions) _buildSuggestions(),
-            Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: _buildChipsSection()),
-                  if (_recentSearches.isNotEmpty)
-                    SliverToBoxAdapter(child: _buildRecentAndTrending()),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Results',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '(${results.length})',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (results.isEmpty)
-                    const SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Text('No results. Try adjusting filters.'),
-                      ),
-                    )
-                  else
-                    SliverList.builder(
-                      itemCount: results.length,
-                      itemBuilder: (context, i) =>
-                          _ResultTile(item: results[i]),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _search,
-              onSubmitted: (_) => _submitSearch(),
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Search titles, people, genres…',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                isDense: true,
-              ),
-            ),
           ),
           const SizedBox(width: 8),
           IconButton(
@@ -383,8 +360,10 @@ class _OttSearchPageState extends State<OttSearchPage> {
             children: options.map((o) {
               final isSel = selected.contains(o);
               return FilterChip(
-                label: Text(o),
+                label: Text(o, style: TextStyle(color: Colors.white)),
                 selected: isSel,
+                selectedColor: Colors.blue,
+                checkmarkColor: Colors.white,
                 onSelected: (val) {
                   setState(() {
                     if (val) {
@@ -415,21 +394,6 @@ class _OttSearchPageState extends State<OttSearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Release Year',
-                style: Theme.of(context).textTheme.labelLarge,
-              ),
-              RangeSlider(
-                values: _yearRange,
-                divisions: (2025 - 1970),
-                min: 1970,
-                max: 2025,
-                labels: RangeLabels(
-                  _yearRange.start.round().toString(),
-                  _yearRange.end.round().toString(),
-                ),
-                onChanged: (v) => setState(() => _yearRange = v),
-              ),
               Row(
                 children: [
                   Expanded(
@@ -448,23 +412,28 @@ class _OttSearchPageState extends State<OttSearchPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('Duration'),
-                      const SizedBox(height: 8),
-                      SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(value: 'any', label: Text('Any')),
-                          ButtonSegment(value: 'short', label: Text('<30m')),
-                          ButtonSegment(value: 'medium', label: Text('30–90m')),
-                          ButtonSegment(value: 'long', label: Text('>90m')),
-                        ],
-                        selected: {_durationBucket},
-                        onSelectionChanged: (s) =>
-                            setState(() => _durationBucket = s.first),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Duration'),
+                        const SizedBox(height: 8),
+                        SegmentedButton<String>(
+                          segments: const [
+                            ButtonSegment(value: 'any', label: Text('Any')),
+                            ButtonSegment(value: 'short', label: Text('<30m')),
+                            ButtonSegment(
+                              value: 'medium',
+                              label: Text('30–90m'),
+                            ),
+                            ButtonSegment(value: 'long', label: Text('>90m')),
+                          ],
+                          selected: {_durationBucket},
+                          onSelectionChanged: (s) =>
+                              setState(() => _durationBucket = s.first),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -543,11 +512,11 @@ class _ResultTile extends StatelessWidget {
       child: ListTile(
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Container(
+          child: Image.asset(
+            item.imagePath,
             width: 54,
             height: 72,
-            color: Colors.grey.shade300,
-            child: const Icon(Icons.movie_outlined),
+            fit: BoxFit.cover,
           ),
         ),
         title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -561,7 +530,6 @@ class _ResultTile extends StatelessWidget {
               children: [
                 _Pill(text: item.type),
                 _Pill(text: item.language),
-                _Pill(text: '${item.year}'),
               ],
             ),
             const SizedBox(height: 4),

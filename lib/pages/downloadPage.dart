@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'searchPage.dart';
 
-// void main() => runApp(const MyApp());
+class MovieDownload {
+  final String title;
+  final String subtitle;
+  final String thumbnail;
+  final String status; // "completed", "in-progress", "failed"
+  final double? progress; // only used if in-progress
 
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'OTT Downloads',
-//       home: const DownloadsPage(),
-//     );
-//   }
-// }~
+  MovieDownload({
+    required this.title,
+    required this.subtitle,
+    required this.thumbnail,
+    required this.status,
+    this.progress,
+  });
+}
 
 class DownloadsPage extends StatefulWidget {
   const DownloadsPage({super.key});
@@ -23,41 +25,38 @@ class DownloadsPage extends StatefulWidget {
 }
 
 class _DownloadsPageState extends State<DownloadsPage> {
-  // Mock Data for Downloads
-
-  final List<Map<String, dynamic>> downloads = [
-    {
-      "title": "Master",
-      "subtitle": "2h 59m • HD",
-      "thumbnail": "assets/images/master.jpg",
-      "status": "completed",
-    },
-    {
-      "title": "Star Wars: A New Hope",
-      "subtitle": "2h 1m • HD",
-      "thumbnail": "assets/images/star_wars.jpg",
-      "status": "in-progress",
-      "progress": 0.4,
-    },
-    {
-      "title": "Titanic",
-      "subtitle": "3h 14m • HD",
-      "thumbnail": "assets/images/titanic.jpg",
-      "status": "failed",
-    },
+  final List<MovieDownload> downloads = [
+    MovieDownload(
+      title: "Master",
+      subtitle: "2h 59m • HD",
+      thumbnail: "assets/images/master.jpg",
+      status: "completed",
+    ),
+    MovieDownload(
+      title: "Star Wars: A New Hope",
+      subtitle: "2h 1m • HD",
+      thumbnail: "assets/images/star_wars.jpg",
+      status: "in-progress",
+      progress: 0.4,
+    ),
+    MovieDownload(
+      title: "Titanic",
+      subtitle: "3h 14m • HD",
+      thumbnail: "assets/images/titanic.jpg",
+      status: "failed",
+    ),
   ];
 
+  // final List<MovieDownload> downloads = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Downloads"),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_sweep_outlined),
-            onPressed: () {
-              // bulk delete logic later
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -75,43 +74,36 @@ class _DownloadsPageState extends State<DownloadsPage> {
     );
   }
 
-  Widget _buildDownloadItem(Map<String, dynamic> item) {
+  Widget _buildDownloadItem(MovieDownload item) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child:
-              item["thumbnail"] != null &&
-                  item["thumbnail"].toString().isNotEmpty
-              ? Image.asset(
-                  item["thumbnail"],
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover, // ✅ Ensures image fills the box
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholder();
-                  },
-                )
-              : _buildPlaceholder(),
+          child: Image.asset(
+            item.thumbnail,
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
+          ),
         ),
         title: Text(
-          item["title"],
+          item.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(item["subtitle"]),
+            Text(item.subtitle),
             const SizedBox(height: 4),
-            if (item["status"] == "in-progress")
+            if (item.status == "in-progress")
               LinearProgressIndicator(
-                value: item["progress"],
+                value: item.progress,
                 minHeight: 5,
                 backgroundColor: Colors.grey[300],
               ),
-            if (item["status"] == "failed")
+            if (item.status == "failed")
               const Text(
                 "Download failed. Retry?",
                 style: TextStyle(color: Colors.red, fontSize: 12),
@@ -123,37 +115,22 @@ class _DownloadsPageState extends State<DownloadsPage> {
     );
   }
 
-  Widget _buildPlaceholder() {
-    return Container(
-      width: 60,
-      height: 60,
-      color: Colors.grey[300],
-      child: const Icon(Icons.movie, color: Colors.grey),
-    );
-  }
-
-  Widget _buildActions(Map<String, dynamic> item) {
-    switch (item["status"]) {
+  Widget _buildActions(MovieDownload item) {
+    switch (item.status) {
       case "completed":
         return IconButton(
           icon: const Icon(Icons.play_circle_fill, color: Colors.blue),
-          onPressed: () {
-            // play logic
-          },
+          onPressed: () {},
         );
       case "in-progress":
         return IconButton(
           icon: const Icon(Icons.pause_circle_filled, color: Colors.orange),
-          onPressed: () {
-            // pause logic
-          },
+          onPressed: () {},
         );
       case "failed":
         return IconButton(
           icon: const Icon(Icons.refresh, color: Colors.red),
-          onPressed: () {
-            // retry logic
-          },
+          onPressed: () {},
         );
       default:
         return const SizedBox.shrink();
@@ -179,7 +156,10 @@ class _DownloadsPageState extends State<DownloadsPage> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // navigate to browse
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OttSearchPage()),
+              );
             },
             child: const Text("Browse Content"),
           ),
@@ -191,10 +171,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
   Widget _buildStorageInfo() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        border: const Border(top: BorderSide(color: Colors.grey)),
-      ),
+      decoration: BoxDecoration(color: Colors.grey[100]),
       child: const Text(
         "Storage used: 2.3 GB of 10 GB",
         style: TextStyle(color: Colors.black54),

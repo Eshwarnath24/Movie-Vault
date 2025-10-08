@@ -5,6 +5,8 @@ import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 import 'package:ott/pages/Menu/contactSupport.dart';
 import 'package:ott/pages/Menu/deleteAccount.dart';
 import 'package:ott/pages/Menu/language.dart';
+import 'package:ott/pages/downloadPage.dart';
+import 'package:ott/pages/searchPage.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
@@ -109,13 +111,21 @@ class _MovieVaultState extends State<MovieVault> {
 
               SizedBox(height: 60),
 
-              _createMenuOptions("Delete Account", Icons.delete_forever, DeleteAccount(title: "Delete Account")),
+              _createMenuOptions(
+                "Delete Account",
+                Icons.delete_forever,
+                DeleteAccount(title: "Delete Account"),
+              ),
               _createMenuOptions(
                 "Contact Support",
                 Icons.support_agent_rounded,
-                ContactSupport(title: "Contact Support")
+                ContactSupport(title: "Contact Support"),
               ),
-              _createMenuOptions("Languages", Icons.g_translate_rounded, changeLanguage(title: "Languages")),
+              _createMenuOptions(
+                "Languages",
+                Icons.g_translate_rounded,
+                changeLanguage(title: "Languages"),
+              ),
               // _createMenuOptions("Profile", Icons.account_circle_rounded),
               SizedBox(height: 50),
 
@@ -158,13 +168,15 @@ class _MovieVaultState extends State<MovieVault> {
                     _navigatingPage = HomePage();
                   });
                 } else if (_navigationIndex == 1) {
-                  // setState(() {
-                  //   _navigatingPage = HomePage();
-                  // });
+                  changeTittleName("Download");
+                  setState(() {
+                    _navigatingPage = DownloadsPage();
+                  });
                 } else if (_navigationIndex == 2) {
-                  // setState(() {
-                  //   _navigatingPage = HomePage();
-                  // });
+                  changeTittleName("Search");
+                  setState(() {
+                    _navigatingPage = OttSearchPage();
+                  });
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
                   setState(() {
