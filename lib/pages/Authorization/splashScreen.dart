@@ -67,7 +67,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 aspectRatio: _controller.value.aspectRatio,
                 child: VideoPlayer(_controller),
               )
-            : Container(), // Show an empty container while the video is loading
+            : Container(
+                color: const Color.fromRGBO(29, 29, 29, 1),
+              ), // Show an empty container while the video is loading
       ),
     );
   }
