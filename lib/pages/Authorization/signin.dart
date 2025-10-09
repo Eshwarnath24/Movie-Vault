@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ott/pages/Authorization/forgotPassword.dart';
 import 'package:ott/pages/Main/movieVault.dart';
 import 'package:ott/pages/Authorization/signup.dart';
@@ -12,34 +13,107 @@ class Signin extends StatefulWidget {
 }
 
 class _SigninState extends State<Signin> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   bool _rememberMe = false;
 
-
-  void UserSignIn() {
-
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
-  Widget _buildTextField(
-    String hintText, {
+  Future<void> userSignIn() async {
+    // add loader
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    // user sign in
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      Navigator.pop(context);
+      // show error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please enter email and password')),
+      );
+    } else {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+
+        // pop loader
+        if (context.mounted) {
+          Navigator.pop(context);
+
+          // clear controllers
+          emailController.clear();
+          passwordController.clear();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MovieVault()),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        print(e.code);
+        // pop loader
+        Navigator.pop(context);
+
+        // show error
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+      }
+    }
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
     required IconData icon,
-    bool isPassword = false,
+    required bool obscureText,
   }) {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white54),
-        filled: true,
-        fillColor: Color.fromARGB(255, 50, 50, 50),
-        prefixIcon: Icon(icon, color: Colors.white54),
-        suffixIcon: isPassword
-            ? Icon(Icons.visibility_off_outlined, color: Colors.white54)
-            : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      obscureText: isPassword, // hides text
+    bool _obscure = obscureText;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return TextField(
+          controller: controller,
+          obscureText: _obscure,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.white54),
+            filled: true,
+            fillColor: Color.fromARGB(255, 50, 50, 50),
+            prefixIcon: Icon(icon, color: Colors.white54),
+            suffixIcon: obscureText
+                ? GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _obscure = !_obscure;
+                      });
+                    },
+                    child: Icon(
+                      _obscure
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.white54,
+                    ),
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -86,9 +160,19 @@ class _SigninState extends State<Signin> {
                   style: TextStyle(fontSize: 12, color: Colors.white70),
                 ),
                 SizedBox(height: 80),
-                _buildTextField('Enter Email', icon: Icons.email),
+                _buildTextField(
+                  controller: emailController,
+                  hintText: 'Email*',
+                  icon: Icons.email,
+                  obscureText: false,
+                ),
                 SizedBox(height: 20),
-                _buildTextField('Password', icon: Icons.lock, isPassword: true),
+                _buildTextField(
+                  controller: passwordController,
+                  hintText: 'Password*',
+                  icon: Icons.lock,
+                  obscureText: true,
+                ),
                 SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,16 +230,7 @@ class _SigninState extends State<Signin> {
                       child: IconButton(
                         icon: Icon(Icons.arrow_forward, size: 28),
                         color: Colors.white,
-                        onPressed: () {
-                          UserSignIn();
-                          //
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MovieVault(),
-                            ),
-                          );
-                        },
+                        onPressed: userSignIn,
                       ),
                     ),
                   ],

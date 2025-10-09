@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Authorization/signin.dart'; // Make sure this path is correct for your project
+import 'package:ott/pages/Firebase/auth_page.dart';
 import 'package:video_player/video_player.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -44,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Signin()),
+        MaterialPageRoute(builder: (context) => const AuthPage()),
       );
     }
   }

@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Main/movieVault.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -10,32 +13,147 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  bool _obscureText = true;
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController mobileNumController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  Widget _createTextField(IconData icon, String hintText) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      margin: EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(45, 45, 45, 1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Colors.white70),
-          SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              style: TextStyle(color: Colors.white70),
-              decoration: InputDecoration(
-                hintText: hintText,
-                hintStyle: TextStyle(fontSize: 15, color: Colors.white70),
-                border: InputBorder.none,
-              ),
+  @override
+  void dispose() {
+    userNameController.dispose();
+    emailController.dispose();
+    mobileNumController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> UserRegistation() async {
+    // show loader
+    showDialog(
+      context: context,
+      builder: (context) => Center(child: CircularProgressIndicator()),
+    );
+
+    // check is empty
+    if (userNameController.text.isEmpty &&
+        emailController.text.isEmpty &&
+        mobileNumController.text.isEmpty &&
+        passwordController.text.isEmpty) {
+      // pop loading
+      Navigator.pop(context);
+
+      // show alert
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please enter Credentials')));
+    } else {
+      // create user
+      try {
+        UserCredential? userCredentials = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim(),
+            );
+
+        // add user details
+        createUserDoc(userCredentials);
+
+        // if mounted
+        if (context.mounted) {
+          // pop loading
+          Navigator.pop(context);
+
+          // clear controller
+          userNameController.clear();
+          emailController.clear();
+          mobileNumController.clear();
+          passwordController.clear();
+
+          // navigate to movie vault home page
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MovieVault()),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        // pop loading
+        Navigator.pop(context);
+
+        // show alert
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+      }
+    }
+  }
+
+  void createUserDoc(UserCredential? userCredential) async {
+    if (userCredential != null && userCredential.user != null) {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc( /* makes random id*/
+            // userCredential.user!.email,
+          ) // **** using the user’s email as the document ID. ****
+          .set({
+            "email": userCredential.user!.email,
+            "userName": userNameController.text.trim(),
+            "phoneNumber": mobileNumController.text.trim(),
+          });
+    }
+  }
+
+  Widget _createTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required IconData icon,
+    required bool obscureText,
+  }) {
+    bool _obscure = obscureText;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return TextField(
+          controller: controller,
+          obscureText: _obscure,
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.white54),
+            filled: true,
+            fillColor: Color.fromARGB(255, 50, 50, 50),
+            prefixIcon: Icon(icon, color: Colors.white54),
+            suffixIcon: obscureText
+                ? GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _obscure = !_obscure;
+                      });
+                    },
+                    child: Icon(
+                      _obscure
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: Colors.white54,
+                    ),
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
             ),
           ),
-        ],
-      ),
+        );
+      },
+    );
+  }
+
+  Widget socialCircle(String assetPath) {
+    return MaterialButton(
+      onPressed: () {},
+      shape: CircleBorder(),
+      height: 60,
+      minWidth: 60,
+      color: Color.fromRGBO(45, 45, 45, 1),
+      child: SvgPicture.asset(assetPath, width: 25, height: 25),
     );
   }
 
@@ -115,61 +233,37 @@ class _SignupState extends State<Signup> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                _createTextField(Icons.person_4_rounded, "Enter the Full Name*"),
-                                
-                                _createTextField(Icons.email, "Enter Email*"),
-
-                                _createTextField(Icons.phone_android, "Mobile Number*"),
-
-                                Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  margin: EdgeInsets.symmetric(vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: Color.fromRGBO(45, 45, 45, 1),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.lock,
-                                        size: 20,
-                                        color: Colors.white70,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Expanded(
-                                        child: TextField(
-                                          obscureText: _obscureText,
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                          ),
-                                          decoration: InputDecoration(
-                                            hintText: "Create Password*",
-                                            hintStyle: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white70,
-                                            ),
-                                            border: InputBorder.none,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 10),
-                                      GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _obscureText = !_obscureText;
-                                          });
-                                        },
-                                        child: Icon(
-                                          _obscureText
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                          size: 20,
-                                          color: Colors.white70,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                _createTextField(
+                                  controller: userNameController,
+                                  hintText: "User Name*",
+                                  icon: Icons.person_4_rounded,
+                                  obscureText: false,
                                 ),
+                                SizedBox(height: 8),
+
+                                _createTextField(
+                                  controller: emailController,
+                                  hintText: "Email*",
+                                  icon: Icons.email,
+                                  obscureText: false,
+                                ),
+                                SizedBox(height: 8),
+
+                                _createTextField(
+                                  controller: mobileNumController,
+                                  hintText: "Mobile Number*",
+                                  icon: Icons.phone_android,
+                                  obscureText: false,
+                                ),
+                                SizedBox(height: 8),
+
+                                _createTextField(
+                                  controller: passwordController,
+                                  hintText: "Create Password*",
+                                  icon: Icons.lock,
+                                  obscureText: true,
+                                ),
+                                SizedBox(height: 8),
                               ],
                             ),
                             SizedBox(height: 15),
@@ -193,16 +287,7 @@ class _SignupState extends State<Signup> {
                                   ),
                                 ),
                                 MaterialButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            Signin(), 
-                                      ),
-                                    );
-                                    
-                                  },
+                                  onPressed: UserRegistation,
                                   color: Colors.blueAccent,
                                   height: 50,
                                   minWidth: 50,
@@ -217,7 +302,6 @@ class _SignupState extends State<Signup> {
                             ),
                           ],
                         ),
-                        // This Center widget holds the content for the bottom of the screen.
                         Center(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -232,50 +316,15 @@ class _SignupState extends State<Signup> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   // google
-                                  MaterialButton(
-                                    onPressed: () {},
-                                    shape: CircleBorder(),
-                                    height: 60,
-                                    minWidth: 60,
-                                    color: Color.fromRGBO(45, 45, 45, 1),
-                                    child: SvgPicture.asset(
-                                      'assets/images/google.svg',
-                                      width: 25,
-                                      height: 25,
-                                    ),
-                                  ),
-
+                                  socialCircle('assets/images/google.svg'),
                                   SizedBox(width: 50),
 
                                   // apple
-                                  MaterialButton(
-                                    onPressed: () {},
-                                    shape: CircleBorder(),
-                                    height: 60,
-                                    minWidth: 60,
-                                    color: Color.fromRGBO(45, 45, 45, 1),
-                                    child: SvgPicture.asset(
-                                      'assets/images/apple.svg',
-                                      width: 25,
-                                      height: 25,
-                                    ),
-                                  ),
-
+                                  socialCircle('assets/images/apple.svg'),
                                   SizedBox(width: 50),
 
                                   // facebook
-                                  MaterialButton(
-                                    onPressed: () {},
-                                    shape: CircleBorder(),
-                                    height: 60,
-                                    minWidth: 60,
-                                    color: Color.fromRGBO(45, 45, 45, 1),
-                                    child: SvgPicture.asset(
-                                      'assets/images/facebook.svg',
-                                      width: 25,
-                                      height: 25,
-                                    ),
-                                  ),
+                                  socialCircle('assets/images/facebook.svg'),
                                 ],
                               ),
                               SizedBox(height: 20),
@@ -291,8 +340,7 @@ class _SignupState extends State<Signup> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            Signin(), // replace with your page
+                                        builder: (context) => Signin(),
                                       ),
                                     );
                                   },

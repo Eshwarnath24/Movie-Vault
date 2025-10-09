@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/signin.dart';
 import 'package:ott/pages/Main/movieVaultHome.dart';
@@ -17,6 +18,7 @@ class MovieVault extends StatefulWidget {
 }
 
 class _MovieVaultState extends State<MovieVault> {
+  final User? currentUser = FirebaseAuth.instance.currentUser;
   int _navigationIndex = 0;
   Widget _navigatingPage = HomePage();
   String _tittleName = "Movie Vault";
@@ -33,14 +35,48 @@ class _MovieVaultState extends State<MovieVault> {
     });
   }
 
+  void SignOut() async {
+    // add loader
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      // context mounted
+      if (context.mounted) {
+        // pop loader
+        Navigator.pop(context);
+
+        // Navigate to sign in page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Signin()),
+        );
+      }
+    } on FirebaseAuthException catch (_) {
+      // pop loader
+      Navigator.pop(context);
+
+      // alert error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sorry unable to signout, Please try again!')),
+      );
+    }
+  }
+
   Widget _createMenuOptions(
-    String Option,
+    String option,
     IconData icon,
-    Widget navigateToPage, {
+    VoidCallback onTap, { // take a function instead of a page
     Color? color,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       decoration: BoxDecoration(
         color: const Color.fromARGB(236, 85, 85, 85),
         borderRadius: BorderRadius.circular(12),
@@ -50,14 +86,8 @@ class _MovieVaultState extends State<MovieVault> {
         child: Material(
           color: Colors.transparent,
           child: ListTile(
-            onTap: () {
-              print("Add $Option tapped");
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => navigateToPage),
-              );
-            },
-            title: Text(Option, style: TextStyle(color: color ?? Colors.white)),
+            onTap: onTap, // just call the passed function
+            title: Text(option, style: TextStyle(color: color ?? Colors.white)),
             trailing: Icon(icon, color: color ?? Colors.white),
           ),
         ),
@@ -112,33 +142,51 @@ class _MovieVaultState extends State<MovieVault> {
 
               SizedBox(height: 60),
 
-              _createMenuOptions(
-                "Delete Account",
-                Icons.delete_forever,
-                DeleteAccount(title: "Delete Account"),
-              ),
+              _createMenuOptions("Delete Account", Icons.delete_forever, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        DeleteAccount(title: "Delete Account"),
+                  ),
+                );
+              }),
+
               _createMenuOptions(
                 "Contact Support",
                 Icons.support_agent_rounded,
-                ContactSupport(title: "Contact Support"),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ContactSupport(title: "Contact Support"),
+                    ),
+                  );
+                },
               ),
-              _createMenuOptions(
-                "Languages",
-                Icons.g_translate_rounded,
-                changeLanguage(title: "Subscribe"),
-              ),
-              _createMenuOptions(
-                "Subscribe",
-                Icons.workspace_premium,
-                SubscriptionPage(),
-              ),
+              _createMenuOptions("Languages", Icons.g_translate_rounded, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => changeLanguage(title: "Subscribe"),
+                  ),
+                );
+              }),
+
+              _createMenuOptions("Subscribe", Icons.workspace_premium, () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SubscriptionPage()),
+                );
+              }),
               // _createMenuOptions("Profile", Icons.account_circle_rounded),
               SizedBox(height: 50),
 
               _createMenuOptions(
                 "Log out",
                 Icons.arrow_forward_rounded,
-                Signin(),
+                SignOut,
               ),
               SizedBox(height: 20),
             ],
