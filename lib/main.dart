@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/splashScreen.dart';
+import 'package:ott/pages/Main/movieVault.dart';
 
 void main() {
   runApp(const MainApp());

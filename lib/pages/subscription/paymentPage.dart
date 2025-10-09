@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ott/pages/Main/movieVault.dart';
 
 class PaymentPage extends StatefulWidget {
   final String selectedPlan;
@@ -393,10 +394,12 @@ class PaymentSuccessPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => MovieVault()),
+                    );
                   },
                   child: const Text(
-                    "Go to Dashboard",
+                    "Go to Home",
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
