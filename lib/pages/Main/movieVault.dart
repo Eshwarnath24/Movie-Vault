@@ -5,6 +5,7 @@ import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 import 'package:ott/pages/Menu/contactSupport.dart';
 import 'package:ott/pages/Menu/deleteAccount.dart';
 import 'package:ott/pages/Menu/language.dart';
+import 'package:ott/pages/subscription/subscriptionPage.dart';
 import 'package:ott/pages/downloadPage.dart';
 import 'package:ott/pages/searchPage.dart';
 
@@ -124,7 +125,12 @@ class _MovieVaultState extends State<MovieVault> {
               _createMenuOptions(
                 "Languages",
                 Icons.g_translate_rounded,
-                changeLanguage(title: "Languages"),
+                changeLanguage(title: "Subscribe"),
+              ),
+              _createMenuOptions(
+                "Subscribe",
+                Icons.workspace_premium,
+                SubscriptionPage(),
               ),
               // _createMenuOptions("Profile", Icons.account_circle_rounded),
               SizedBox(height: 50),

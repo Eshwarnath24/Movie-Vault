@@ -84,22 +84,35 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           // Foreground content
           Column(
             children: [
-              const SizedBox(height: 60),
-              const Icon(
-                Icons.workspace_premium,
-                size: 100,
-                color: Colors.blue,
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'Back',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ],
               ),
+              const SizedBox(height: 30),
+              const Icon(Icons.workspace_premium, size: 80, color: Colors.blue),
               const SizedBox(height: 15),
               const Text(
                 "Subscribe to Premium",
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 35),
               const FeatureTile(text: "Watch in 4K on All Devices"),
               const FeatureTile(text: "Ad-free. No One Ad"),
               const FeatureTile(text: "Quality in All Watching Movies"),
@@ -223,7 +236,7 @@ class FeatureTile extends StatelessWidget {
       child: Row(
         children: [
           const Icon(Icons.check, color: Colors.blue),
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               text,

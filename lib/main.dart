@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/splashScreen.dart';
-import 'package:ott/pages/subscription/subscriptionPage.dart';
-import 'package:ott/pages/subscription/paymentPage.dart';
+import 'package:ott/pages/Main/movieVault.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,7 +27,7 @@ class MainApp extends StatelessWidget {
           border: InputBorder.none,
         ),
       ),
-      home: SubscriptionPage(),
+      home: SplashScreen(),
     );
   }
 }
