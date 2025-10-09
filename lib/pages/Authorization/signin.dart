@@ -14,6 +14,11 @@ class Signin extends StatefulWidget {
 class _SigninState extends State<Signin> {
   bool _rememberMe = false;
 
+
+  void UserSignIn() {
+
+  }
+
   Widget _buildTextField(
     String hintText, {
     required IconData icon,
@@ -142,6 +147,8 @@ class _SigninState extends State<Signin> {
                         icon: Icon(Icons.arrow_forward, size: 28),
                         color: Colors.white,
                         onPressed: () {
+                          UserSignIn();
+                          //
                           Navigator.push(
                             context,
                             MaterialPageRoute(
