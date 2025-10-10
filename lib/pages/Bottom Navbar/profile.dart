@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/editPassword.dart';
 import 'package:ott/pages/Bottom%20Navbar/editProfile.dart';
 import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Firebase/database.dart';
 
 class Profile extends StatefulWidget {
   final void Function(Widget) changePage;
@@ -19,6 +20,24 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   bool _showNotification = false;
+  MyDatabase db = MyDatabase();
+  late List<Map<String, dynamic>> userInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final data = await db.getCurrentUserInfo();
+    if (mounted) {
+      setState(() {
+        userInfo = data;
+        print(userInfo);
+      });
+    }
+  }
 
   Widget _createProfileOptions(
     String Option,
@@ -79,11 +98,11 @@ class _ProfileState extends State<Profile> {
               ),
               SizedBox(height: 8),
               Text(
-                "Eshwarnath Gajula",
+                userInfo[0]['userName'],
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                "User123@gmail.com",
+                userInfo[0]['email'],
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
@@ -95,12 +114,20 @@ class _ProfileState extends State<Profile> {
                 _createProfileOptions(
                   "Edit Profile",
                   Icons.person,
-                  EditProfile(changePage: widget.changePage, changeTittle: widget.changeTittle,),
+                  EditProfile(
+                    changePage: widget.changePage,
+                    changeTittle: widget.changeTittle,
+                    userInfo: userInfo,
+                  ),
                 ),
                 _createProfileOptions(
                   "Edit Password",
                   Icons.lock,
-                  EditPassword(changePage: widget.changePage, changeTittle: widget.changeTittle,),
+                  EditPassword(
+                    changePage: widget.changePage,
+                    changeTittle: widget.changeTittle,
+                    userInfo: userInfo,
+                  ),
                 ),
 
                 Container(

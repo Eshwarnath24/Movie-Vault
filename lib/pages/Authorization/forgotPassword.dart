@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ott/pages/Authorization/codeSentPage.dart';
 import 'package:ott/pages/Authorization/otp_page.dart';
 import 'package:ott/pages/Authorization/signin.dart';
-import 'codeSentPage.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -24,75 +24,79 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     super.dispose();
   }
 
-  // Future sendMail() async {
-  //   // add loader
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return Center(child: CircularProgressIndicator());
-  //     },
-  //   );
+  void sendEmail() async {
+    // email code
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: emailController.text.trim(),
+      );
 
-  //   if (isSelected[0]) {
-  //     // email code
-  //     try {
-  //       await FirebaseAuth.instance.sendPasswordResetEmail(
-  //         email: emailController.text.trim(),
-  //       );
+      if (context.mounted) {
+        // pop loader
+        Navigator.pop(context);
 
-  //       if (context.mounted) {
-  //         // pop loader
-  //         Navigator.pop(context);
+        // clear controllers
+        emailController.clear();
+        phoneNumController.clear();
 
-  //         // clear controllers
-  //         emailController.clear();
-  //         phoneNumController.clear();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CodeSentPage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+      // pop loader
+      Navigator.pop(context);
 
-  //         Navigator.push(
-  //           context,
-  //           MaterialPageRoute(builder: (context) => CodeSentPage()),
-  //         );
-  //       }
-  //     } on FirebaseAuthException catch (e) {
-  //       print(e.code);
-  //       // pop loader
-  //       Navigator.pop(context);
+      // show error
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+    }
+  }
 
-  //       // show error
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
-  //     }
-  //   } else {
-  //     // mobile otp
+  void sendOTP() async {
+    // mobile otp
 
-  //     try {
-  //       await FirebaseAuth.instance.verifyPhoneNumber(
-  //         verificationCompleted: (PhoneAuthCredential cred) {},
-  //         verificationFailed: (FirebaseAuthException e) {},
-  //         codeSent: (String verificationId, int? resendToken) {
-  //           // Navigator.push(
-  //           //   context,
-  //           //   MaterialPageRoute(
-  //           //     builder: (context) => OTPPage(verificationId: verificationId),
-  //           //   ),
-  //           // );
-  //         },
-  //         codeAutoRetrievalTimeout: (String verificationId) {},
-  //         phoneNumber: phoneNumController.text.trim().toString(),
-  //       );
-  //     } on FirebaseAuthException catch (e) {
-  //       print(e.code);
-  //       // pop loader
-  //       Navigator.pop(context);
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        verificationCompleted: (PhoneAuthCredential cred) {},
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String verificationId, int? resendToken) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OTPPage(verificationId: verificationId),
+            ),
+          );
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+        phoneNumber: phoneNumController.text.trim().toString(),
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e.code);
+      // pop loader
+      Navigator.pop(context);
 
-  //       // show error
-  //       ScaffoldMessenger.of(
-  //         context,
-  //       ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
-  //     }
-  //   }
-  // }
+      // show error
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+    }
+  }
+
+  void sendMailOrOTP() async {
+    // add loader
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+
+    isSelected[0] ? sendEmail() : sendOTP();
+  }
 
   Widget _buildTextField(
     String hintText, {
@@ -227,7 +231,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         color: Colors.blue,
                       ),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: sendMailOrOTP,
                         child: const Icon(
                           Icons.arrow_forward,
                           color: Colors.white,

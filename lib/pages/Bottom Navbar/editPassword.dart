@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Firebase/database.dart';
 
 class EditPassword extends StatefulWidget {
   final void Function(Widget) changePage;
   final void Function(String) changeTittle;
+  final List<Map<String, dynamic>> userInfo;
 
   const EditPassword({
     super.key,
     required this.changePage,
     required this.changeTittle,
+    required this.userInfo,
   });
 
   @override
@@ -86,7 +89,6 @@ class _EditPasswordState extends State<EditPassword> {
                   children: [
                     MaterialButton(
                       onPressed: () {
-                        print("Save tapped");
                         widget.changePage(
                           Profile(
                             changePage: widget.changePage,
@@ -94,8 +96,8 @@ class _EditPasswordState extends State<EditPassword> {
                           ),
                         );
                         widget.changeTittle("Profile");
-                        // You can save the controller.text value here
                       },
+
                       minWidth: MediaQuery.of(context).size.width / 4,
                       color: Colors.blue, // button background
                       textColor: Colors.white, // text color

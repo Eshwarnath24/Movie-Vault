@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
+import 'package:ott/pages/Firebase/database.dart';
 
 class EditProfile extends StatefulWidget {
   final void Function(Widget) changePage;
   final void Function(String) changeTittle;
+  final List<Map<String, dynamic>> userInfo;
 
   const EditProfile({
     super.key,
     required this.changePage,
     required this.changeTittle,
+    required this.userInfo,
   });
 
   @override
@@ -16,17 +19,21 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  List<TextEditingController> controllers = [
-    TextEditingController(text: "Eshwarnath Gajula"),
-    TextEditingController(text: "user123@gmail.com"),
-    TextEditingController(text: "1234567890"),
-    TextEditingController(text: "123-B Block DHA-Amrita"),
-  ];
+  MyDatabase db = MyDatabase();
+  late List<TextEditingController> controllers;
 
-  Widget _createProfileEditOptions(
-    int index,
-    IconData icon,
-  ) {
+  @override
+  void initState() {
+    super.initState();
+    controllers = [
+      TextEditingController(text: widget.userInfo[0]['userName']),
+      TextEditingController(text: widget.userInfo[0]['email']),
+      TextEditingController(text: widget.userInfo[0]['phoneNumber']),
+      TextEditingController(text: widget.userInfo[0]['address']),
+    ];
+  }
+
+  Widget _createProfileEditOptions(int index, IconData icon, String hintText) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -41,9 +48,12 @@ class _EditProfileState extends State<EditProfile> {
           SizedBox(width: 10),
           Expanded(
             child: TextField(
-              controller: controllers[index], // ✅ shows pre-filled value
+              controller: controllers[index],
               style: TextStyle(color: Colors.white70),
-              decoration: InputDecoration(border: InputBorder.none),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: hintText,
+              ),
             ),
           ),
           SizedBox(width: 10),
@@ -94,15 +104,17 @@ class _EditProfileState extends State<EditProfile> {
           Expanded(
             child: ListView(
               children: [
-                _createProfileEditOptions(0, Icons.person),
-                _createProfileEditOptions(1, Icons.mail),
+                _createProfileEditOptions(0, Icons.person, "User Name*"),
+                _createProfileEditOptions(1, Icons.mail, "Email*"),
                 _createProfileEditOptions(
                   2,
                   Icons.phone_android_rounded,
+                  "Phone Number*",
                 ),
                 _createProfileEditOptions(
                   3,
                   Icons.maps_home_work_outlined,
+                  "Address",
                 ),
 
                 SizedBox(height: 10),
@@ -111,17 +123,31 @@ class _EditProfileState extends State<EditProfile> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MaterialButton(
-                      onPressed: () {
-                        print("Save tapped");
-                        widget.changePage(
-                          Profile(
-                            changePage: widget.changePage,
-                            changeTittle: widget.changeTittle,
-                          ),
-                        );
-                        widget.changeTittle("Profile");
-                        // You can save the controller.text value here
+                      onPressed: () async {
+                        try {
+                          await db.updateUserInfo({
+                            'userName': controllers[0].text.trim(),
+                            'email': controllers[1].text.trim(),
+                            'phoneNumber': controllers[2].text.trim(),
+                            'address': controllers[3].text.trim(),
+                          });
+
+                          widget.changePage(
+                            Profile(
+                              changePage: widget.changePage,
+                              changeTittle: widget.changeTittle,
+                            ),
+                          );
+                          widget.changeTittle("Profile");
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Failed to update info"),
+                            ),
+                          );
+                        }
                       },
+
                       minWidth: MediaQuery.of(context).size.width / 4,
                       color: Colors.blue, // button background
                       textColor: Colors.white, // text color

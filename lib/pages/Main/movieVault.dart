@@ -18,7 +18,6 @@ class MovieVault extends StatefulWidget {
 }
 
 class _MovieVaultState extends State<MovieVault> {
-  final User? currentUser = FirebaseAuth.instance.currentUser;
   int _navigationIndex = 0;
   Widget _navigatingPage = HomePage();
   String _tittleName = "Movie Vault";
@@ -93,6 +92,13 @@ class _MovieVaultState extends State<MovieVault> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    super.initState();
   }
 
   @override
@@ -233,6 +239,7 @@ class _MovieVaultState extends State<MovieVault> {
                   });
                 } else if (_navigationIndex == 3) {
                   changeTittleName("Profile");
+
                   setState(() {
                     _navigatingPage = Profile(
                       changePage: changeNavigatingPage,
