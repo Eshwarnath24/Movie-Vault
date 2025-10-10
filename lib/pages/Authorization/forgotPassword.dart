@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ott/pages/Authorization/otp_page.dart';
 import 'package:ott/pages/Authorization/signin.dart';
 import 'codeSentPage.dart';
 
@@ -10,7 +12,112 @@ class ForgetPassword extends StatefulWidget {
 }
 
 class _ForgetPasswordState extends State<ForgetPassword> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController phoneNumController = TextEditingController();
+
   List<bool> isSelected = [true, false];
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    phoneNumController.dispose();
+    super.dispose();
+  }
+
+  // Future sendMail() async {
+  //   // add loader
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return Center(child: CircularProgressIndicator());
+  //     },
+  //   );
+
+  //   if (isSelected[0]) {
+  //     // email code
+  //     try {
+  //       await FirebaseAuth.instance.sendPasswordResetEmail(
+  //         email: emailController.text.trim(),
+  //       );
+
+  //       if (context.mounted) {
+  //         // pop loader
+  //         Navigator.pop(context);
+
+  //         // clear controllers
+  //         emailController.clear();
+  //         phoneNumController.clear();
+
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(builder: (context) => CodeSentPage()),
+  //         );
+  //       }
+  //     } on FirebaseAuthException catch (e) {
+  //       print(e.code);
+  //       // pop loader
+  //       Navigator.pop(context);
+
+  //       // show error
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+  //     }
+  //   } else {
+  //     // mobile otp
+
+  //     try {
+  //       await FirebaseAuth.instance.verifyPhoneNumber(
+  //         verificationCompleted: (PhoneAuthCredential cred) {},
+  //         verificationFailed: (FirebaseAuthException e) {},
+  //         codeSent: (String verificationId, int? resendToken) {
+  //           // Navigator.push(
+  //           //   context,
+  //           //   MaterialPageRoute(
+  //           //     builder: (context) => OTPPage(verificationId: verificationId),
+  //           //   ),
+  //           // );
+  //         },
+  //         codeAutoRetrievalTimeout: (String verificationId) {},
+  //         phoneNumber: phoneNumController.text.trim().toString(),
+  //       );
+  //     } on FirebaseAuthException catch (e) {
+  //       print(e.code);
+  //       // pop loader
+  //       Navigator.pop(context);
+
+  //       // show error
+  //       ScaffoldMessenger.of(
+  //         context,
+  //       ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+  //     }
+  //   }
+  // }
+
+  Widget _buildTextField(
+    String hintText, {
+    required controller,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextField(
+      keyboardType: keyboardType,
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.white54),
+        filled: true,
+        fillColor: const Color.fromARGB(255, 44, 44, 44),
+        prefixIcon: Icon(icon, color: Colors.white54),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      obscureText: isPassword,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,11 +188,16 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
                 // TextField based on toggle selection
                 isSelected[0]
-                    ? _buildTextField('Enter Email*', icon: Icons.email)
+                    ? _buildTextField(
+                        'Enter Email*',
+                        icon: Icons.email,
+                        controller: emailController,
+                      )
                     : _buildTextField(
                         'Enter Phone Number*',
                         icon: Icons.phone,
                         keyboardType: TextInputType.phone,
+                        controller: phoneNumController,
                       ),
 
                 const SizedBox(height: 8),
@@ -115,12 +227,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                         color: Colors.blue,
                       ),
                       child: GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CodeSentPage(),
-                          ),
-                        ),
+                        onTap: () {},
                         child: const Icon(
                           Icons.arrow_forward,
                           color: Colors.white,
@@ -161,29 +268,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(
-    String hintText, {
-    required IconData icon,
-    bool isPassword = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextField(
-      keyboardType: keyboardType,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.white54),
-        filled: true,
-        fillColor: const Color.fromARGB(255, 44, 44, 44),
-        prefixIcon: Icon(icon, color: Colors.white54),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      obscureText: isPassword,
     );
   }
 }

@@ -47,8 +47,9 @@ class _SigninState extends State<Signin> {
           password: passwordController.text.trim(),
         );
 
-        // pop loader
+        
         if (context.mounted) {
+          // pop loader
           Navigator.pop(context);
 
           // clear controllers
