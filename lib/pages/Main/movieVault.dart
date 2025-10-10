@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/signin.dart';
 import 'package:ott/pages/Bottom%20Navbar/downloadPage.dart';
+import 'package:ott/pages/Firebase/database.dart';
 import 'package:ott/pages/Main/movieVaultHome.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 import 'package:ott/pages/Menu/contactSupport.dart';
@@ -21,6 +22,20 @@ class _MovieVaultState extends State<MovieVault> {
   int _navigationIndex = 0;
   Widget _navigatingPage = HomePage();
   String _tittleName = "Movie Vault";
+
+  MyDatabase db = MyDatabase();
+  String? password; // make nullable
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPassword();
+  }
+
+  Future<void> _loadPassword() async {
+    password = await db.getUserPassword();
+    setState(() {}); // rebuild widget if needed
+  }
 
   void changeTittleName(String newName) {
     setState(() {
@@ -95,13 +110,6 @@ class _MovieVaultState extends State<MovieVault> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
@@ -152,8 +160,10 @@ class _MovieVaultState extends State<MovieVault> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        DeleteAccount(title: "Delete Account"),
+                    builder: (context) => DeleteAccount(
+                      title: "Delete Account",
+                      password: password!,
+                    ),
                   ),
                 );
               }),

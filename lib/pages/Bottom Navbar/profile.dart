@@ -22,7 +22,7 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   bool _showNotification = false;
   MyDatabase db = MyDatabase();
-  late List<Map<String, dynamic>> userInfo;
+  List<Map<String, dynamic>> userInfo = [];
 
   @override
   void initState() {
@@ -103,11 +103,11 @@ class _ProfileState extends State<Profile> {
               ),
               SizedBox(height: 8),
               Text(
-                userInfo[0]['userName'],
+                userInfo.isNotEmpty ? userInfo[0]['userName'] : "John",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Text(
-                userInfo[0]['email'],
+                userInfo.isNotEmpty ? userInfo[0]['email'] : "john@gmail.com",
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),
             ],
