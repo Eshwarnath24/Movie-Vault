@@ -1,14 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Bottom%20Navbar/downloadPage.dart';
 import 'package:ott/pages/Main/movieVaultHome.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 import 'package:ott/pages/Menu/contactSupport.dart';
 import 'package:ott/pages/Menu/deleteAccount.dart';
 import 'package:ott/pages/Menu/language.dart';
 import 'package:ott/pages/subscription/subscriptionPage.dart';
-import 'package:ott/pages/downloadPage.dart';
-import 'package:ott/pages/searchPage.dart';
+import 'package:ott/pages/Bottom%20Navbar/searchPage.dart';
 
 class MovieVault extends StatefulWidget {
   const MovieVault({super.key});
