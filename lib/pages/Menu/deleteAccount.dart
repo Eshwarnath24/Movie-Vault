@@ -5,13 +5,52 @@ import 'package:ott/pages/Firebase/auth_page.dart';
 
 class DeleteAccount extends StatefulWidget {
   final String title;
-  const DeleteAccount({super.key, required this.title});
+  final String password;
+  const DeleteAccount({super.key, required this.title, required this.password});
 
   @override
   State<DeleteAccount> createState() => _DeleteAccountState();
 }
 
 class _DeleteAccountState extends State<DeleteAccount> {
+  void deleteAccount() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Delete from Firestore (Users collection)
+        final credential = EmailAuthProvider.credential(
+          email: user.email!,
+          password: widget.password,
+        );
+        await user.reauthenticateWithCredential(credential);
+        // now user can be deleted
+        await user.delete();
+
+        // Delete Firestore document
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .delete();
+
+        print("Account deleted");
+
+        // Navigate to Signin page and clear navigation stack
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => AuthPage()),
+        );
+      } else {
+        print("No user is logged in");
+      }
+    } catch (e) {
+      print("Error deleting user: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to delete account: $e")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -98,46 +137,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                                 ),
 
                                 TextButton(
-                                  onPressed: () async {
-                                    try {
-                                      final user =
-                                          FirebaseAuth.instance.currentUser;
-
-                                      if (user != null) {
-                                        // Delete from Firestore (Users collection)
-                                        await FirebaseFirestore.instance
-                                            .collection('Users')
-                                            .doc(user.uid)
-                                            .delete();
-
-                                        // Delete from Authentication
-                                        await user.delete();
-
-                                        print("Account deleted");
-
-                                        // Navigate to Signin page and clear navigation stack
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => AuthPage(),
-                                          ),
-                                        );
-                                      } else {
-                                        print("No user is logged in");
-                                      }
-                                    } catch (e) {
-                                      print("Error deleting user: $e");
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Failed to delete account: $e",
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
+                                  onPressed: deleteAccount,
 
                                   child: Text(
                                     "Delete",

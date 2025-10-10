@@ -31,6 +31,12 @@ class MyDatabase {
     }
   }
 
+  Future<String?> getUserPassword() async {
+    final info = await getCurrentUserInfo();
+    if (info.isNotEmpty) return info[0]['password'];
+    return null;
+  }
+
   /// Update current user info
   Future<void> updateUserInfo(Map<String, dynamic> updatedData) async {
     if (currentUser == null) {

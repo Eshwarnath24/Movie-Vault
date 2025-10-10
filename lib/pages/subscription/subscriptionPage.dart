@@ -27,182 +27,193 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background images
-          Row(
-            children: [
-              Expanded(
-                child: Image.asset(
-                  "assets/images/titanic.jpg",
-                  fit: BoxFit.cover,
-                  height: double.infinity,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Background images
+            Row(
+              children: [
+                Expanded(
+                  child: Image.asset(
+                    "assets/images/titanic.jpg",
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Image.asset(
-                  "assets/images/star_wars.jpg",
-                  fit: BoxFit.cover,
-                  height: double.infinity,
+                Expanded(
+                  child: Image.asset(
+                    "assets/images/star_wars.jpg",
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Image.asset(
-                  "assets/images/master.jpg",
-                  fit: BoxFit.cover,
-                  height: double.infinity,
+                Expanded(
+                  child: Image.asset(
+                    "assets/images/master.jpg",
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Image.asset(
-                  "assets/images/srimanthudu.jpg",
-                  fit: BoxFit.cover,
-                  height: double.infinity,
+                Expanded(
+                  child: Image.asset(
+                    "assets/images/srimanthudu.jpg",
+                    fit: BoxFit.cover,
+                    height: double.infinity,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          // Gradient overlay
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.1),
-                  Colors.black.withOpacity(0.2),
-                  Colors.black.withOpacity(0.6),
-                  Colors.black.withOpacity(0.9),
-                  Colors.black.withOpacity(0.95),
-                  Colors.black.withOpacity(1),
-                ],
+            // Gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withOpacity(0.1),
+                    Colors.black.withOpacity(0.2),
+                    Colors.black.withOpacity(0.6),
+                    Colors.black.withOpacity(0.9),
+                    Colors.black.withOpacity(0.95),
+                    Colors.black.withOpacity(1),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Foreground content
-          Column(
-            children: [
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.white,
+            // Foreground content
+            Column(
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
-                    'Back',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              const Icon(Icons.workspace_premium, size: 80, color: Colors.blue),
-              const SizedBox(height: 15),
-              const Text(
-                "Subscribe to Premium",
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
+                    const SizedBox(width: 6),
+                    const Text(
+                      'Back',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                const Icon(
+                  Icons.workspace_premium,
+                  size: 80,
                   color: Colors.blue,
                 ),
-              ),
-              const SizedBox(height: 35),
-              const FeatureTile(text: "Watch in 4K on All Devices"),
-              const FeatureTile(text: "Ad-free. No One Ad"),
-              const FeatureTile(text: "Quality in All Watching Movies"),
-
-              // Scrollable content
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Features
-                      const SizedBox(height: 50),
-
-                      // Plans
-                      buildPlanTile(
-                        "Starter",
-                        "7 - Days Free Trial",
-                        "₹69/Month",
-                      ),
-
-                      const SizedBox(height: 15),
-                      buildPlanTile(
-                        "Enterprise",
-                        "Best for Teams",
-                        "₹499/Month",
-                      ),
-                      const SizedBox(height: 15),
-                      buildPlanTile(
-                        "Premium",
-                        "1 - Month Free Trial",
-                        "₹199/Month",
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Continue button
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("You selected: $selectedPlan plan"),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
-                          Future.delayed(
-                            const Duration(milliseconds: 1500),
-                            () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PaymentPage(
-                                    selectedPlan: selectedPlan,
-                                    selectedPrice: getPlanPrice(selectedPlan),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: const Text(
-                          "Continue For Payment",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                      ),
-
-                      const SizedBox(height: 25),
-
-                      // Footer
-                      const Center(
-                        child: Text(
-                          "Terms of use | Privacy Policy | Restore",
-                          style: TextStyle(fontSize: 12, color: Colors.white70),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 15),
+                const Text(
+                  "Subscribe to Premium",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(height: 35),
+                const FeatureTile(text: "Watch in 4K on All Devices"),
+                const FeatureTile(text: "Ad-free. No One Ad"),
+                const FeatureTile(text: "Quality in All Watching Movies"),
+
+                // Scrollable content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Features
+                        const SizedBox(height: 50),
+
+                        // Plans
+                        buildPlanTile(
+                          "Starter",
+                          "7 - Days Free Trial",
+                          "₹69/Month",
+                        ),
+
+                        const SizedBox(height: 15),
+                        buildPlanTile(
+                          "Enterprise",
+                          "Best for Teams",
+                          "₹499/Month",
+                        ),
+                        const SizedBox(height: 15),
+                        buildPlanTile(
+                          "Premium",
+                          "1 - Month Free Trial",
+                          "₹199/Month",
+                        ),
+
+                        const SizedBox(height: 40),
+
+                        // Continue button
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            minimumSize: const Size(double.infinity, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "You selected: $selectedPlan plan",
+                                ),
+                                duration: const Duration(seconds: 1),
+                              ),
+                            );
+                            Future.delayed(
+                              const Duration(milliseconds: 1500),
+                              () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PaymentPage(
+                                      selectedPlan: selectedPlan,
+                                      selectedPrice: getPlanPrice(selectedPlan),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child: const Text(
+                            "Continue For Payment",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ),
+
+                        const SizedBox(height: 25),
+
+                        // Footer
+                        const Center(
+                          child: Text(
+                            "Terms of use | Privacy Policy | Restore",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
