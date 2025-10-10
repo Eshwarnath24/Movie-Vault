@@ -394,48 +394,30 @@ class _OttSearchPageState extends State<OttSearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Min Rating: ${_minRating.toStringAsFixed(1)}'),
-                        Slider(
-                          min: 0,
-                          max: 10,
-                          divisions: 20,
-                          value: _minRating,
-                          onChanged: (v) => setState(() => _minRating = v),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Duration'),
-                        const SizedBox(height: 8),
-                        SegmentedButton<String>(
-                          segments: const [
-                            ButtonSegment(value: 'any', label: Text('Any')),
-                            ButtonSegment(value: 'short', label: Text('<30m')),
-                            ButtonSegment(
-                              value: 'medium',
-                              label: Text('30–90m'),
-                            ),
-                            ButtonSegment(value: 'long', label: Text('>90m')),
-                          ],
-                          selected: {_durationBucket},
-                          onSelectionChanged: (s) =>
-                              setState(() => _durationBucket = s.first),
-                        ),
-                      ],
-                    ),
-                  ),
+              Text('Min Rating: ${_minRating.toStringAsFixed(1)}'),
+              SizedBox(
+                width: 300,
+                child: Slider(
+                  min: 0,
+                  max: 10,
+                  divisions: 20,
+                  value: _minRating,
+                  onChanged: (v) => setState(() => _minRating = v),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text('Duration'),
+              const SizedBox(height: 8),
+              SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(value: 'any', label: Text('Any')),
+                  ButtonSegment(value: 'short', label: Text('<30m')),
+                  ButtonSegment(value: 'medium', label: Text('30–90m')),
+                  ButtonSegment(value: 'long', label: Text('>90m')),
                 ],
+                selected: {_durationBucket},
+                onSelectionChanged: (s) =>
+                    setState(() => _durationBucket = s.first),
               ),
             ],
           ),
