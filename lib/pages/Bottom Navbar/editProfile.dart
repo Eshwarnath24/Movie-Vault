@@ -33,6 +33,29 @@ class _EditProfileState extends State<EditProfile> {
     ];
   }
 
+  Future<void> changeUserInformation() async {
+    try {
+      await db.updateUserInfo({
+        'userName': controllers[0].text.trim(),
+        'email': controllers[1].text.trim(),
+        'phoneNumber': controllers[2].text.trim(),
+        'address': controllers[3].text.trim(),
+      });
+
+      widget.changePage(
+        Profile(
+          changePage: widget.changePage,
+          changeTittle: widget.changeTittle,
+        ),
+      );
+      widget.changeTittle("Profile");
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Failed to update info")));
+    }
+  }
+
   Widget _createProfileEditOptions(int index, IconData icon, String hintText) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
@@ -123,30 +146,7 @@ class _EditProfileState extends State<EditProfile> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MaterialButton(
-                      onPressed: () async {
-                        try {
-                          await db.updateUserInfo({
-                            'userName': controllers[0].text.trim(),
-                            'email': controllers[1].text.trim(),
-                            'phoneNumber': controllers[2].text.trim(),
-                            'address': controllers[3].text.trim(),
-                          });
-
-                          widget.changePage(
-                            Profile(
-                              changePage: widget.changePage,
-                              changeTittle: widget.changeTittle,
-                            ),
-                          );
-                          widget.changeTittle("Profile");
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Failed to update info"),
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: changeUserInformation,
 
                       minWidth: MediaQuery.of(context).size.width / 4,
                       color: Colors.blue, // button background

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Firebase/auth_page.dart';
 
 class DeleteAccount extends StatefulWidget {
   final String title;
@@ -90,21 +92,53 @@ class _DeleteAccountState extends State<DeleteAccount> {
                               actions: [
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.of(
-                                      context,
-                                    ).pop();
+                                    Navigator.of(context).pop();
                                   },
                                   child: Text("Cancel"),
                                 ),
 
                                 TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => Signin()),
-                                    );
-                                    print("Account deleted");
+                                  onPressed: () async {
+                                    try {
+                                      final user =
+                                          FirebaseAuth.instance.currentUser;
+
+                                      if (user != null) {
+                                        // Delete from Firestore (Users collection)
+                                        await FirebaseFirestore.instance
+                                            .collection('Users')
+                                            .doc(user.uid)
+                                            .delete();
+
+                                        // Delete from Authentication
+                                        await user.delete();
+
+                                        print("Account deleted");
+
+                                        // Navigate to Signin page and clear navigation stack
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => AuthPage(),
+                                          ),
+                                        );
+                                      } else {
+                                        print("No user is logged in");
+                                      }
+                                    } catch (e) {
+                                      print("Error deleting user: $e");
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Failed to delete account: $e",
+                                          ),
+                                        ),
+                                      );
+                                    }
                                   },
+
                                   child: Text(
                                     "Delete",
                                     style: TextStyle(
@@ -118,7 +152,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                           },
                         );
                       },
-                      color: Colors.blueAccent, 
+                      color: Colors.blueAccent,
                       padding: EdgeInsets.symmetric(
                         horizontal: 35,
                         vertical: 16,
@@ -128,10 +162,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
                       ),
                       child: Text(
                         "Delete",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 18),
                       ),
                     ),
                   ],

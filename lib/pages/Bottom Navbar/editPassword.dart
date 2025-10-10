@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
 import 'package:ott/pages/Firebase/database.dart';
@@ -19,7 +20,73 @@ class EditPassword extends StatefulWidget {
 }
 
 class _EditPasswordState extends State<EditPassword> {
+  MyDatabase db = MyDatabase();
   List<bool> obscureText = [true, true, true];
+  List<TextEditingController> contollers = [
+    TextEditingController(),
+    TextEditingController(),
+    TextEditingController(),
+  ];
+
+  Future<void> changeUserPassword() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    // 1) Check all 3 fields are filled
+    if (contollers[0].text.isEmpty ||
+        contollers[1].text.isEmpty ||
+        contollers[2].text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Please fill all the fields")));
+      return;
+    }
+
+    // 2) Check new password and confirm password match
+    if (contollers[1].text != contollers[2].text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("New password and confirm password do not match"),
+        ),
+      );
+      return;
+    }
+
+    // 3) Check old password matches with Firestore data
+    final userInfo = widget.userInfo[0];
+    if (userInfo['password'] != contollers[0].text) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Old password is incorrect")));
+      return;
+    }
+
+    try {
+      // Update password directly in Firebase Auth
+      await user.updatePassword(contollers[1].text);
+
+      // Update password in Firestore user table
+      MyDatabase db = MyDatabase();
+      await db.updateUserInfo({'password': contollers[1].text});
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Password updated successfully")));
+
+      // Navigate back to Profile
+      widget.changePage(
+        Profile(
+          changePage: widget.changePage,
+          changeTittle: widget.changeTittle,
+        ),
+      );
+      widget.changeTittle("Profile");
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to update password: $e")));
+    }
+  }
 
   Widget _createEditPasswordOpts(String hintText, int index) {
     return Container(
@@ -35,6 +102,7 @@ class _EditPasswordState extends State<EditPassword> {
           SizedBox(width: 10),
           Expanded(
             child: TextField(
+              controller: contollers[index],
               obscureText: obscureText[index],
               style: TextStyle(color: Colors.white70),
               decoration: InputDecoration(
@@ -88,15 +156,7 @@ class _EditPasswordState extends State<EditPassword> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MaterialButton(
-                      onPressed: () {
-                        widget.changePage(
-                          Profile(
-                            changePage: widget.changePage,
-                            changeTittle: widget.changeTittle,
-                          ),
-                        );
-                        widget.changeTittle("Profile");
-                      },
+                      onPressed: changeUserPassword,
 
                       minWidth: MediaQuery.of(context).size.width / 4,
                       color: Colors.blue, // button background

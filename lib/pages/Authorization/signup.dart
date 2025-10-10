@@ -88,19 +88,19 @@ class _SignupState extends State<Signup> {
   }
 
   void createUserDoc(UserCredential? userCredential) async {
-  if (userCredential != null && userCredential.user != null) {
-    await FirebaseFirestore.instance
-        .collection('Users')
-        .doc(userCredential.user!.uid) // using UID as the document ID
-        .set({
-          "email": userCredential.user!.email,
-          "userName": userNameController.text.trim(),
-          "phoneNumber": "+91" + mobileNumController.text.trim(),
-          "address": "",
-        });
+    if (userCredential != null && userCredential.user != null) {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userCredential.user!.uid) // using UID as the document ID
+          .set({
+            "email": userCredential.user!.email,
+            "password": passwordController.text.trim(),
+            "userName": userNameController.text.trim(),
+            "phoneNumber": "+91" + mobileNumController.text.trim(),
+            "address": "",
+          });
+    }
   }
-}
-
 
   Widget _createTextField({
     required TextEditingController controller,

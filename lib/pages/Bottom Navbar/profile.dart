@@ -1,7 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/editPassword.dart';
 import 'package:ott/pages/Bottom%20Navbar/editProfile.dart';
-import 'package:ott/pages/Authorization/signin.dart';
+import 'package:ott/pages/Firebase/auth_page.dart';
 import 'package:ott/pages/Firebase/database.dart';
 
 class Profile extends StatefulWidget {
@@ -55,18 +56,22 @@ class _ProfileState extends State<Profile> {
         child: Material(
           color: Colors.transparent,
           child: ListTile(
-            onTap: () {
+            onTap: () async {
               print("Add $Option tapped");
               if (Option == "Logout") {
-                Navigator.push(
+                await FirebaseAuth.instance.signOut(); // 🔹 Sign out user
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Signin()),
+                  MaterialPageRoute(
+                    builder: (context) => navigatingPage,
+                  ), // 🔹 Navigate to sign-in page
                 );
               } else {
                 widget.changeTittle(Option);
                 widget.changePage(navigatingPage);
               }
             },
+
             title: Text(Option, style: TextStyle(color: Colors.white)),
             leading: Icon(icon, color: Colors.white),
             trailing: Icon(
@@ -169,7 +174,7 @@ class _ProfileState extends State<Profile> {
                 _createProfileOptions(
                   "Logout",
                   Icons.logout_outlined,
-                  Signin(),
+                  AuthPage(),
                 ),
               ],
             ),
