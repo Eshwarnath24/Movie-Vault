@@ -98,7 +98,7 @@ class MovieDetailPage extends StatelessWidget {
             const SizedBox(height: 26),
 
             // Episodes
-            Padding(
+            movie.episodes.isNotEmpty ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: const [
@@ -113,7 +113,7 @@ class MovieDetailPage extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            ) : Container(),
             const SizedBox(height: 12),
 
             ...List.generate(
