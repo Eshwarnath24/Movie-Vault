@@ -76,11 +76,19 @@ class MovieDatabase {
 
     final userRef = _firestore.collection("Users").doc(user.uid);
 
+    // First, remove the movie ID if it already exists.
+    // This is crucial for re-ordering.
     await userRef.update({
-      "continueMovies": FieldValue.arrayUnion([movieId])
+      "continueMovies": FieldValue.arrayRemove([movieId]),
     });
 
-    print("✅ Added movieId $movieId to continueMovies for ${user.uid}");
+    // Now, add it back to the end of the array.
+    // This makes the last element the most recently watched.
+    await userRef.update({
+      "continueMovies": FieldValue.arrayUnion([movieId]),
+    });
+
+    print("✅ Updated continueMovies with movieId $movieId for ${user.uid}");
   }
 
   // =============================================================
@@ -99,10 +107,13 @@ class MovieDatabase {
     final List<dynamic> movieIds = userDoc.data()?['continueMovies'] ?? [];
     List<Movie> continueMovies = [];
 
-    for (String movieId in movieIds) {
+    // Iterate over the REVERSED list of IDs to get the most recent first.
+    for (String movieId in movieIds.reversed) {
       // Try finding in TrendingMovies first
-      DocumentSnapshot<Map<String, dynamic>> doc =
-          await _firestore.collection("TrendingMovies").doc(movieId).get();
+      DocumentSnapshot<Map<String, dynamic>> doc = await _firestore
+          .collection("TrendingMovies")
+          .doc(movieId)
+          .get();
 
       if (!doc.exists) {
         // Try CarouselMovies if not found
