@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Firebase/movie_database.dart';
 import 'package:ott/pages/Main/movie.dart';
@@ -21,34 +22,44 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    print("hii");
+    print(FirebaseAuth.instance.currentUser?.uid);
+    print("hii");
     super.initState();
     _loadMovies(); // 🔹 Fetch movies when the page loads
   }
 
   /// Fetch movies from Firestore
   void _loadMovies() async {
-    final fetchedCarousel = await movieDB.fetchMovies(
-      "CarouselMovies",
-    ); // 🔹 Carousel movies
-    final fetchedTrending = await movieDB.fetchMovies(
-      "TrendingMovies",
-    ); // 🔹 Trending movies
-    final fetchedContinues = await movieDB.fetchMovies(
-      "ContinueMovies",
-    ); // 🔹 Trending movies
+    final fetchedCarousel = await movieDB.fetchMovies("CarouselMovies");
+    final fetchedTrending = await movieDB.fetchMovies("TrendingMovies");
+    final fetchedContinue = await movieDB.fetchContinueMovies();
 
     setState(() {
       carouselMovies = fetchedCarousel;
       trendingMovies = fetchedTrending;
-      continueMovies = fetchedContinues;
+      continueMovies = fetchedContinue;
     });
   }
 
-  void _addToContinueWatching(Movie movie) {
+  // void _addToContinueWatching(Movie movie) {
+  //   setState(() {
+  //     // continueMovies.remove(movie);
+  //     // continueMovies.insert(0, movie);
+  //   });
+  // }
+  Future<void> _addToContinueWatching(Movie movie) async {
+    // 🔹 Add or update the movie in Firestore
+    await movieDB.addContinueMovie(movie);
+    print("hello");
+
+    final updatedContinueList = await movieDB.fetchContinueMovies();
+
     setState(() {
-      continueMovies.remove(movie);
-      continueMovies.insert(0, movie);
+      continueMovies = updatedContinueList;
     });
+
+    print("Added to Continue Watching (latest first): ${movie.title}");
   }
 
   Widget _buildMovieSection(String title, List<Movie> movies) {
@@ -90,16 +101,16 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (context, index) {
                     final movie = movies[index];
                     return GestureDetector(
-                      onTap: () {
-                        // add with id
-
+                      onTap: () async {
+                        await _addToContinueWatching(
+                          movie,
+                        ); // Firestore write for current user
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => MovieDetailPage(movie: movie),
                           ),
                         );
-                        _addToContinueWatching(movie);
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8),

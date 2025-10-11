@@ -31,13 +31,15 @@ class _SignupState extends State<Signup> {
     // show loader
     showDialog(
       context: context,
-      builder: (context) => Center(child: CircularProgressIndicator()),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     // check is empty
-    if (userNameController.text.isEmpty &&
-        emailController.text.isEmpty &&
-        mobileNumController.text.isEmpty &&
+    if (userNameController
+            .text
+            .isEmpty || // Changed from && to || for better validation
+        emailController.text.isEmpty ||
+        mobileNumController.text.isEmpty ||
         passwordController.text.isEmpty) {
       // pop loading
       Navigator.pop(context);
@@ -45,7 +47,7 @@ class _SignupState extends State<Signup> {
       // show alert
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Please enter Credentials')));
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
     } else {
       // create user
       try {
@@ -56,23 +58,18 @@ class _SignupState extends State<Signup> {
             );
 
         // add user details
-        createUserDoc(userCredentials);
+        await createUserDoc(userCredentials); // Added await here
 
         // if mounted
         if (context.mounted) {
           // pop loading
           Navigator.pop(context);
 
-          // clear controller
-          userNameController.clear();
-          emailController.clear();
-          mobileNumController.clear();
-          passwordController.clear();
-
           // navigate to movie vault home page
-          Navigator.push(
+          Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => MovieVault()),
+            MaterialPageRoute(builder: (context) => const MovieVault()),
+            (route) => false,
           );
         }
       } on FirebaseAuthException catch (e) {
@@ -80,27 +77,34 @@ class _SignupState extends State<Signup> {
         Navigator.pop(context);
 
         // show alert
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error : ${e.code}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error : ${e.message ?? e.code}')),
+        );
       }
     }
   }
 
-  void createUserDoc(UserCredential? userCredential) async {
+  // --- THIS FUNCTION HAS BEEN UPDATED ---
+  Future<void> createUserDoc(UserCredential? userCredential) async {
     if (userCredential != null && userCredential.user != null) {
       await FirebaseFirestore.instance
           .collection('Users')
           .doc(userCredential.user!.uid) // using UID as the document ID
           .set({
             "email": userCredential.user!.email,
-            "password": passwordController.text.trim(),
             "userName": userNameController.text.trim(),
-            "phoneNumber": "+91" + mobileNumController.text.trim(),
+            "phoneNumber": "+91${mobileNumController.text.trim()}",
             "address": "",
+
+            // +++ THIS IS THE LINE YOU ASKED FOR +++
+            "subscriptionPlan": "No plan",
+
+            // ⚠️ REMINDER: Storing passwords like this is a major security risk.
+            "password": passwordController.text.trim(),
           });
     }
   }
+  // --- END OF UPDATE ---
 
   Widget _createTextField({
     required TextEditingController controller,
@@ -117,9 +121,9 @@ class _SignupState extends State<Signup> {
           obscureText: _obscure,
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.white54),
+            hintStyle: const TextStyle(color: Colors.white54),
             filled: true,
-            fillColor: Color.fromARGB(255, 50, 50, 50),
+            fillColor: const Color.fromARGB(255, 50, 50, 50),
             prefixIcon: Icon(icon, color: Colors.white54),
             suffixIcon: obscureText
                 ? GestureDetector(
@@ -149,27 +153,24 @@ class _SignupState extends State<Signup> {
   Widget socialCircle(String assetPath) {
     return MaterialButton(
       onPressed: () {},
-      shape: CircleBorder(),
+      shape: const CircleBorder(),
       height: 60,
       minWidth: 60,
-      color: Color.fromRGBO(45, 45, 45, 1),
+      color: const Color.fromRGBO(45, 45, 45, 1),
       child: SvgPicture.asset(assetPath, width: 25, height: 25),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // The rest of your UI build method remains the same...
     return Scaffold(
       body: Container(
-        color: Color.fromRGBO(29, 29, 29, 1),
+        color: const Color.fromRGBO(29, 29, 29, 1),
         width: double.infinity,
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-
-            // learn
-
-            // We use LayoutBuilder and ConstrainedBox to make our Column take up at least the full screen height.
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return SingleChildScrollView(
@@ -178,13 +179,9 @@ class _SignupState extends State<Signup> {
                       minHeight: constraints.maxHeight,
                     ),
                     child: Column(
-                      // This will push the two main child widgets to the top and bottom of the screen.
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // This column holds all the content for the top part of the screen.
-
-                        // till here
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -196,23 +193,23 @@ class _SignupState extends State<Signup> {
                                 children: [
                                   Transform.rotate(
                                     angle: 3.14,
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.arrow_right_alt_rounded,
                                       size: 34,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  Text(
+                                  const Text(
                                     "Back",
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 2 / 5,
-                              child: Text(
+                              child: const Text(
                                 "To Create an Account!",
                                 style: TextStyle(
                                   color: Colors.white,
@@ -220,15 +217,15 @@ class _SignupState extends State<Signup> {
                                 ),
                               ),
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 3 / 5,
-                              child: Text(
+                              child: const Text(
                                 "Enter the following details to Signup...",
                                 style: TextStyle(color: Colors.white70),
                               ),
                             ),
-                            SizedBox(height: 30),
+                            const SizedBox(height: 30),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
@@ -239,45 +236,42 @@ class _SignupState extends State<Signup> {
                                   icon: Icons.person_4_rounded,
                                   obscureText: false,
                                 ),
-                                SizedBox(height: 8),
-
+                                const SizedBox(height: 8),
                                 _createTextField(
                                   controller: emailController,
                                   hintText: "Email*",
                                   icon: Icons.email,
                                   obscureText: false,
                                 ),
-                                SizedBox(height: 8),
-
+                                const SizedBox(height: 8),
                                 _createTextField(
                                   controller: mobileNumController,
                                   hintText: "Mobile Number*",
                                   icon: Icons.phone_android,
                                   obscureText: false,
                                 ),
-                                SizedBox(height: 8),
-
+                                const SizedBox(height: 8),
                                 _createTextField(
                                   controller: passwordController,
                                   hintText: "Create Password*",
                                   icon: Icons.lock,
                                   obscureText: true,
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                               ],
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 2,
-                              child: Text(
+                              child: const Text(
                                 "By Clicking Sign-Up button, you agree to privacy policy",
                                 style: TextStyle(color: Colors.white70),
                               ),
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             Row(
                               children: [
-                                Expanded(
+                                const Expanded(
                                   child: Text(
                                     "Sign Up",
                                     style: TextStyle(
@@ -291,8 +285,8 @@ class _SignupState extends State<Signup> {
                                   color: Colors.blueAccent,
                                   height: 50,
                                   minWidth: 50,
-                                  shape: CircleBorder(),
-                                  child: Icon(
+                                  shape: const CircleBorder(),
+                                  child: const Icon(
                                     Icons.arrow_forward,
                                     color: Colors.white,
                                     size: 28,
@@ -306,29 +300,24 @@ class _SignupState extends State<Signup> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
+                              const Text(
                                 "Sign in with",
                                 style: TextStyle(color: Colors.white70),
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  // google
                                   socialCircle('assets/images/google.svg'),
-                                  SizedBox(width: 50),
-
-                                  // apple
+                                  const SizedBox(width: 50),
                                   socialCircle('assets/images/apple.svg'),
-                                  SizedBox(width: 50),
-
-                                  // facebook
+                                  const SizedBox(width: 50),
                                   socialCircle('assets/images/facebook.svg'),
                                 ],
                               ),
-                              SizedBox(height: 20),
-                              Text(
+                              const SizedBox(height: 20),
+                              const Text(
                                 "Already have an account?",
                                 style: TextStyle(color: Colors.white70),
                               ),
@@ -336,15 +325,14 @@ class _SignupState extends State<Signup> {
                                 cursor: SystemMouseCursors.click,
                                 child: GestureDetector(
                                   onTap: () {
-                                    // Navigator
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => Signin(),
+                                        builder: (context) => const Signin(),
                                       ),
                                     );
                                   },
-                                  child: Text(
+                                  child: const Text(
                                     "Sign-In here!",
                                     style: TextStyle(color: Colors.lightBlue),
                                   ),

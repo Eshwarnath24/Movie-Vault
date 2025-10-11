@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ott/pages/Main/movie.dart';
 import 'package:ott/pages/Main/movie_list.dart';
 
 class MovieDatabase {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  /// Upload all movies (trending + carousel) safely
+  // ... (keep all other functions like uploadAllMovies, addMovie, etc. as they are)
   Future<void> uploadAllMovies() async {
     await _uploadMovies(trendingMovies, "TrendingMovies");
     await _uploadMovies(caroselMovies, "CarouselMovies");
@@ -17,26 +18,16 @@ class MovieDatabase {
     final docSnapshot = await docRef.get();
 
     if (!docSnapshot.exists) {
-      await docRef.set({
-        "movieId": movie.movieId,
-        "title": movie.title,
-        "bannerUrl": movie.bannerUrl,
-        "rating": movie.rating,
-        "genres": movie.genres,
-        "description": movie.description,
-        "videoUrl": movie.videoUrl,
-        "episodes": movie.episodes,
-      });
+      await docRef.set(movie.toMap());
       print("Uploaded $collectionName movie: ${movie.title}");
     } else {
       print("$collectionName movie already exists: ${movie.title}");
     }
   }
 
-  /// Internal method to upload a list of movies to a collection
   Future<void> _uploadMovies(List<Movie> movies, String collectionName) async {
     for (var movie in movies) {
-      addMovie(movie, collectionName);
+      await addMovie(movie, collectionName);
     }
   }
 
@@ -46,7 +37,6 @@ class MovieDatabase {
     return snapshot.docs.map((doc) {
       final data = doc.data();
 
-      // Convert Firestore list of maps into List<Episode>
       List<Episode> episodesList = [];
       if (data['episodes'] != null) {
         episodesList = (data['episodes'] as List)
@@ -72,5 +62,47 @@ class MovieDatabase {
         episodes: episodesList,
       );
     }).toList();
+  }
+
+  Future<List<Movie>> fetchContinueMovies() async {
+    final String userId = FirebaseAuth.instance.currentUser?.uid ?? "guestUser";
+
+    final snapshot = await _firestore
+        .collection("Users")
+        .doc(userId)
+        .collection("ContinueMovies")
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Movie.fromMap(data);
+    }).toList();
+  }
+
+  // ==================== THIS IS THE CORRECTED FUNCTION ====================
+  /// 隼 Add movie to Continue Watching (with timestamp) for current user
+  Future<void> addContinueMovie(Movie movie) async {
+    final String userId = FirebaseAuth.instance.currentUser?.uid ?? "guestUser";
+
+    final docRef = _firestore
+        .collection("Users")
+        .doc(userId)
+        .collection("ContinueMovies")
+        .doc(movie.movieId);
+
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      // FIX: Add the movie data AND the timestamp when creating the document
+      final movieData = movie.toMap();
+      movieData['timestamp'] = Timestamp.now();
+      await docRef.set(movieData);
+      print("Added to ContinueMovies for $userId: ${movie.title}");
+    } else {
+      // This part was already correct. It just updates the timestamp.
+      await docRef.update({'timestamp': Timestamp.now()});
+      print("Updated timestamp for ContinueMovies $userId: ${movie.title}");
+    }
   }
 }

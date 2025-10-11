@@ -101,5 +101,3 @@ final List<Movie> trendingMovies = [
     episodes: [],
   ),
 ];
-
-final List<Movie> continueMovies = [];
