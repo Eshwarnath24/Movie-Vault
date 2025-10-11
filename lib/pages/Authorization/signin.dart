@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ott/pages/Authorization/forgotPassword.dart';
+import 'package:ott/pages/Firebase/database.dart';
 import 'package:ott/pages/Main/movieVault.dart';
 import 'package:ott/pages/Authorization/signup.dart';
 
@@ -16,6 +17,8 @@ class _SigninState extends State<Signin> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool _rememberMe = false;
+
+  MyDatabase db = MyDatabase();
 
   @override
   void dispose() {
@@ -47,7 +50,6 @@ class _SigninState extends State<Signin> {
           password: passwordController.text.trim(),
         );
 
-        
         if (context.mounted) {
           // pop loader
           Navigator.pop(context);
@@ -55,6 +57,11 @@ class _SigninState extends State<Signin> {
           // clear controllers
           emailController.clear();
           passwordController.clear();
+
+          final currentPassword = await db.getUserPassword();
+          if (passwordController.text.trim() != currentPassword) {
+            db.updateUserInfo({'password': passwordController.text.trim()});
+          }
 
           Navigator.push(
             context,

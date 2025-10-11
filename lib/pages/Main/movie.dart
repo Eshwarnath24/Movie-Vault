@@ -1,4 +1,5 @@
 class Movie {
+  final String movieId;
   final String title;
   final String description;
   final double rating;
@@ -8,6 +9,7 @@ class Movie {
   final List<Episode> episodes;
 
   Movie({
+    required this.movieId,
     required this.title,
     required this.description,
     required this.rating,
@@ -31,5 +33,3 @@ class Episode {
     required this.videoUrl,
   });
 }
-
-

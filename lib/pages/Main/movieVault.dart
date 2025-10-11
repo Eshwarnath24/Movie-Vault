@@ -185,7 +185,7 @@ class _MovieVaultState extends State<MovieVault> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => changeLanguage(title: "Subscribe"),
+                    builder: (context) => changeLanguage(title: "Languages"),
                   ),
                 );
               }),
