@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Bottom%20Navbar/profile.dart';
-import 'package:ott/pages/Firebase/database.dart';
 
 class EditPassword extends StatefulWidget {
   final void Function(Widget) changePage;
@@ -20,7 +19,6 @@ class EditPassword extends StatefulWidget {
 }
 
 class _EditPasswordState extends State<EditPassword> {
-  MyDatabase db = MyDatabase();
   List<bool> obscureText = [true, true, true];
   List<TextEditingController> contollers = [
     TextEditingController(),
@@ -28,67 +26,86 @@ class _EditPasswordState extends State<EditPassword> {
     TextEditingController(),
   ];
 
+  // --- THIS FUNCTION HAS BEEN CORRECTED ---
   Future<void> changeUserPassword() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      // Handle case where user is somehow not logged in
+      return;
+    }
 
-    // 1) Check all 3 fields are filled
+    // 1) Check if fields are filled and new passwords match
     if (contollers[0].text.isEmpty ||
         contollers[1].text.isEmpty ||
         contollers[2].text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Please fill all the fields")));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please fill all the fields")),
+        );
+      }
       return;
     }
 
-    // 2) Check new password and confirm password match
     if (contollers[1].text != contollers[2].text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("New password and confirm password do not match"),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("New password and confirm password do not match"),
+          ),
+        );
+      }
       return;
     }
 
-    // 3) Check old password matches with Firestore data
-    final userInfo = widget.userInfo[0];
-    if (userInfo['password'] != contollers[0].text) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Old password is incorrect")));
-      return;
-    }
-
+    // 2) Securely re-authenticate the user before changing the password
     try {
-      // Update password directly in Firebase Auth
-      await user.updatePassword(contollers[1].text);
-
-      // Update password in Firestore user table
-      MyDatabase db = MyDatabase();
-      await db.updateUserInfo({'password': contollers[1].text});
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Password updated successfully")));
-
-      // Navigate back to Profile
-      widget.changePage(
-        Profile(
-          changePage: widget.changePage,
-          changeTittle: widget.changeTittle,
-        ),
+      // Create a credential using the user's email and the old password they entered.
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: contollers[0].text.trim(),
       );
-      widget.changeTittle("Profile");
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Failed to update password: $e")));
+
+      // Re-authenticate with Firebase to verify their identity.
+      await user.reauthenticateWithCredential(credential);
+
+      // 3) If re-authentication is successful, update the password in Firebase Auth.
+      await user.updatePassword(contollers[1].text.trim());
+
+      // We no longer need to update Firestore because the password isn't stored there.
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password updated successfully")),
+        );
+
+        // Navigate back to Profile
+        widget.changePage(
+          Profile(
+            changePage: widget.changePage,
+            changeTittle: widget.changeTittle,
+          ),
+        );
+        widget.changeTittle("Profile");
+      }
+    } on FirebaseAuthException catch (e) {
+      // Provide user-friendly feedback for common errors.
+      String errorMessage = "Failed to update password. Please try again.";
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        errorMessage = "The old password you entered is incorrect.";
+      }
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      }
     }
   }
 
+  // --- No changes are needed below this line ---
+
   Widget _createEditPasswordOpts(String hintText, int index) {
+    // ... your existing widget code
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10),
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -115,7 +132,6 @@ class _EditPasswordState extends State<EditPassword> {
           SizedBox(width: 10),
           GestureDetector(
             onTap: () {
-              print("Tapped");
               setState(() {
                 obscureText[index] = !obscureText[index];
               });
@@ -133,6 +149,7 @@ class _EditPasswordState extends State<EditPassword> {
 
   @override
   Widget build(BuildContext context) {
+    // ... your existing build method
     return Padding(
       padding: EdgeInsetsGeometry.only(top: 40, bottom: 8, left: 8, right: 8),
       child: Column(
@@ -140,27 +157,22 @@ class _EditPasswordState extends State<EditPassword> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(radius: 60, child: Icon(Icons.person_sharp, size: 70)),
-
           SizedBox(height: 40),
-
           Expanded(
             child: ListView(
               children: [
                 _createEditPasswordOpts("Old Password*", 0),
                 _createEditPasswordOpts("New Password*", 1),
                 _createEditPasswordOpts("Confirm Password*", 2),
-
                 SizedBox(height: 10),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MaterialButton(
                       onPressed: changeUserPassword,
-
                       minWidth: MediaQuery.of(context).size.width / 4,
-                      color: Colors.blue, // button background
-                      textColor: Colors.white, // text color
+                      color: Colors.blue,
+                      textColor: Colors.white,
                       padding: EdgeInsets.symmetric(
                         horizontal: 30,
                         vertical: 12,

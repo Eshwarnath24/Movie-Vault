@@ -98,9 +98,6 @@ class _SignupState extends State<Signup> {
 
             // +++ THIS IS THE LINE YOU ASKED FOR +++
             "subscriptionPlan": "No plan",
-
-            // ⚠️ REMINDER: Storing passwords like this is a major security risk.
-            "password": passwordController.text.trim(),
           });
     }
   }
