@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Main/movieVault.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PaymentPage extends StatefulWidget {
   final String selectedPlan;
@@ -17,6 +19,25 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   String selectedMethod = "UPI";
   final TextEditingController _inputController = TextEditingController();
+  // +++ ADD LOADING STATE +++
+  bool _isLoading = false;
+
+  // +++ ADDED DATABASE UPDATE FUNCTION +++
+  Future<void> _finalizeSubscription() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("User not logged in.");
+    }
+
+    final userDocRef = FirebaseFirestore.instance
+        .collection('Users')
+        .doc(user.uid);
+
+    // This updates the user's plan in Firestore
+    await userDocRef.set({
+      'subscriptionPlan': widget.selectedPlan,
+    }, SetOptions(merge: true));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +49,8 @@ class _PaymentPageState extends State<PaymentPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ... your existing UI ...
                 const SizedBox(height: 20),
-
-                // 🔹 Back Button Row
                 Row(
                   children: [
                     GestureDetector(
@@ -48,9 +68,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-
                 const Text(
                   "Complete Your Payment",
                   style: TextStyle(
@@ -64,10 +82,7 @@ class _PaymentPageState extends State<PaymentPage> {
                   "Please select a payment method below to continue",
                   style: TextStyle(fontSize: 14, color: Colors.white70),
                 ),
-
                 const SizedBox(height: 20),
-
-                // 🔹 Order Summary (Dynamic)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -108,10 +123,7 @@ class _PaymentPageState extends State<PaymentPage> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // 🔹 Payment Methods
                 buildPaymentOption(Icons.account_balance_wallet, "UPI"),
                 buildPaymentOption(Icons.credit_card, "Debit/Credit Card"),
                 buildPaymentOption(Icons.account_balance, "Net Banking"),
@@ -119,18 +131,14 @@ class _PaymentPageState extends State<PaymentPage> {
                   Icons.account_balance_wallet_outlined,
                   "Wallets",
                 ),
-
                 const SizedBox(height: 20),
-
-                // 🔹 Dynamic section
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: buildDynamicPaymentDetails(),
                 ),
-
                 const SizedBox(height: 40),
 
-                // 🔹 Pay Now Button
+                // --- PAY NOW BUTTON UPDATED FOR LOADING STATE ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -150,14 +158,22 @@ class _PaymentPageState extends State<PaymentPage> {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_forward),
+                        icon: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Icon(Icons.arrow_forward),
                         color: Colors.white,
-                        onPressed: validateAndProceed,
+                        onPressed: _isLoading ? null : validateAndProceed,
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 30),
               ],
             ),
@@ -168,7 +184,6 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // 🔹 Payment Option (Radio + Icon + Text)
   Widget buildPaymentOption(IconData icon, String method) {
     return RadioListTile<String>(
       value: method,
@@ -186,7 +201,6 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // 🔹 Dynamic Payment Input Section
   Widget buildDynamicPaymentDetails() {
     String placeholder;
     IconData icon;
@@ -212,11 +226,9 @@ class _PaymentPageState extends State<PaymentPage> {
         placeholder = "";
         icon = Icons.help;
     }
-
     return paymentDetailCard(placeholder, icon);
   }
 
-  // 🔹 Helper: Payment Detail Card
   Widget paymentDetailCard(String placeholder, IconData icon) {
     return Container(
       key: ValueKey(selectedMethod),
@@ -252,8 +264,9 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  // 🔹 Validation Logic
-  void validateAndProceed() {
+  // --- VALIDATION LOGIC UPDATED TO CALL DATABASE FUNCTION ---
+  void validateAndProceed() async {
+    // <--- Make the function async
     String input = _inputController.text.trim();
     String? errorMsg;
 
@@ -285,24 +298,53 @@ class _PaymentPageState extends State<PaymentPage> {
         context,
       ).showSnackBar(SnackBar(content: Text(errorMsg)));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Processing $selectedMethod payment..."),
-          duration: const Duration(milliseconds: 1500),
-        ),
-      );
-      Future.delayed(const Duration(seconds: 2), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PaymentSuccessPage(
-              method: selectedMethod,
-              selectedPlan: widget.selectedPlan,
-              selectedPrice: widget.selectedPrice,
+      // Start loading
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        // --- THIS IS THE KEY CHANGE ---
+        // First, update the user's subscription in Firestore
+        await _finalizeSubscription();
+
+        // If successful, proceed to success page
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Processing $selectedMethod payment..."),
+              duration: const Duration(milliseconds: 1500),
             ),
+          );
+
+          Future.delayed(const Duration(seconds: 2), () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PaymentSuccessPage(
+                  method: selectedMethod,
+                  selectedPlan: widget.selectedPlan,
+                  selectedPrice: widget.selectedPrice,
+                ),
+              ),
+            );
+          });
+        }
+      } catch (e) {
+        // If there's an error, show a message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Failed to update subscription. Please try again."),
           ),
         );
-      });
+      } finally {
+        // Stop loading, regardless of success or failure
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
     }
   }
 }
@@ -330,7 +372,6 @@ class PaymentSuccessPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ✅ Success Icon
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: const BoxDecoration(
@@ -340,8 +381,6 @@ class PaymentSuccessPage extends StatelessWidget {
                   child: const Icon(Icons.check, size: 80, color: Colors.white),
                 ),
                 const SizedBox(height: 24),
-
-                // ✅ Title
                 const Text(
                   "Payment Successful!",
                   style: TextStyle(
@@ -351,16 +390,12 @@ class PaymentSuccessPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-
-                // ✅ Thank You Message
                 const Text(
                   "Thank you for subscribing.\nYour Premium Plan is now active.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white70, fontSize: 16),
                 ),
                 const SizedBox(height: 30),
-
-                // ✅ Order Details
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -378,10 +413,7 @@ class PaymentSuccessPage extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 40),
-
-                // ✅ Continue Button
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
@@ -394,8 +426,12 @@ class PaymentSuccessPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => MovieVault()),
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MovieVault(),
+                      ),
+                      (route) => false,
                     );
                   },
                   child: const Text(
