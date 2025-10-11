@@ -36,7 +36,7 @@ class CodeSentPage extends StatelessWidget {
               SizedBox(height: 8),
 
               Text(
-                "Check your email or mobile message,\nIf an account 'M&F Play' exists against\nexample123@domain.com / 0300-1234567",
+                "Check your email or mobile message,\n A password reset code has been sent to the address or number you provided.",
                 style: TextStyle(fontSize: 14, color: Colors.white70),
               ),
 
