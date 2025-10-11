@@ -73,4 +73,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'movievault-52674.firebasestorage.app',
     measurementId: 'G-GP8D729YNY',
   );
+
 }

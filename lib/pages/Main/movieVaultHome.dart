@@ -14,7 +14,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _carouselIndex = 0;
-  MovieDatabase movieDB = MovieDatabase();
+  final MovieDatabase movieDB = MovieDatabase();
+
   // These lists will hold the movies fetched from Firestore
   List<Movie> carouselMovies = [];
   List<Movie> trendingMovies = [];
@@ -22,11 +23,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    print("hii");
-    print(FirebaseAuth.instance.currentUser?.uid);
-    print("hii");
     super.initState();
-    _loadMovies(); // 🔹 Fetch movies when the page loads
+    _loadMovies(); // Fetch movies when the page loads
   }
 
   /// Fetch movies from Firestore
@@ -35,6 +33,7 @@ class _HomePageState extends State<HomePage> {
     final fetchedTrending = await movieDB.fetchMovies("TrendingMovies");
     final fetchedContinue = await movieDB.fetchContinueMovies();
 
+    if (!mounted) return;
     setState(() {
       carouselMovies = fetchedCarousel;
       trendingMovies = fetchedTrending;
@@ -42,24 +41,23 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // void _addToContinueWatching(Movie movie) {
-  //   setState(() {
-  //     // continueMovies.remove(movie);
-  //     // continueMovies.insert(0, movie);
-  //   });
-  // }
-  Future<void> _addToContinueWatching(Movie movie) async {
-    // 🔹 Add or update the movie in Firestore
-    await movieDB.addContinueMovie(movie);
-    print("hello");
+  /// Add a movieId to the user's continueMovies array and refresh the local list
+  Future<void> _addToContinueWatching(String movieId) async {
+    final user = FirebaseAuth.instance.currentUser;
 
+    print("yes from home");
+    print(user!.uid);
+    print("yes");
+
+    if (user == null) return;
+
+    await movieDB.addContinueMovie(movieId);
     final updatedContinueList = await movieDB.fetchContinueMovies();
 
+    if (!mounted) return;
     setState(() {
       continueMovies = updatedContinueList;
     });
-
-    print("Added to Continue Watching (latest first): ${movie.title}");
   }
 
   Widget _buildMovieSection(String title, List<Movie> movies) {
@@ -102,9 +100,8 @@ class _HomePageState extends State<HomePage> {
                     final movie = movies[index];
                     return GestureDetector(
                       onTap: () async {
-                        await _addToContinueWatching(
-                          movie,
-                        ); // Firestore write for current user
+                        // Add to continue (by movieId) then navigate
+                        await _addToContinueWatching(movie.movieId);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -142,7 +139,7 @@ class _HomePageState extends State<HomePage> {
         ).copyWith(scrollbars: false, overscroll: false),
         child: ListView(
           children: [
-            // 🔹 Carousel Section
+            // Carousel Section
             Column(
               children: [
                 CarouselSlider(
@@ -165,14 +162,15 @@ class _HomePageState extends State<HomePage> {
                   ),
                   items: carouselMovies.map((movie) {
                     return GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        // Add by movieId then navigate
+                        await _addToContinueWatching(movie.movieId);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => MovieDetailPage(movie: movie),
                           ),
                         );
-                        _addToContinueWatching(movie);
                       },
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(15),
@@ -214,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                   }).toList(),
                 ),
 
-                // 🔹 Indicator Dots
+                // Indicator Dots
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: carouselMovies.asMap().entries.map((entry) {
@@ -240,12 +238,12 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 25),
 
-            // 🔹 Continue Watching Section
+            // Continue Watching Section
             _buildMovieSection("Continue Watching", continueMovies),
 
             const SizedBox(height: 25),
 
-            // 🔹 Trending Movies Section
+            // Trending Movies Section
             _buildMovieSection("Trending Movies", trendingMovies),
           ],
         ),

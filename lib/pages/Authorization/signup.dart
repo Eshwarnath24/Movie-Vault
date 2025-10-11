@@ -95,13 +95,14 @@ class _SignupState extends State<Signup> {
             "userName": userNameController.text.trim(),
             "phoneNumber": "+91${mobileNumController.text.trim()}",
             "address": "",
-
-            // +++ THIS IS THE LINE YOU ASKED FOR +++
             "subscriptionPlan": "No plan",
-
-            // ⚠️ REMINDER: Storing passwords like this is a major security risk.
             "password": passwordController.text.trim(),
+            "continueMovies": [],
           });
+
+      print("yes from signup");
+      print(userCredential.user!.uid);
+      print("yes");
     }
   }
   // --- END OF UPDATE ---
