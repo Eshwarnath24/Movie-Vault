@@ -44,11 +44,6 @@ class _HomePageState extends State<HomePage> {
   /// Add a movieId to the user's continueMovies array and refresh the local list
   Future<void> _addToContinueWatching(String movieId) async {
     final user = FirebaseAuth.instance.currentUser;
-
-    print("yes from home");
-    print(user!.uid);
-    print("yes");
-
     if (user == null) return;
 
     await movieDB.addContinueMovie(movieId);
@@ -184,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                                   begin: Alignment.bottomCenter,
                                   end: Alignment.topCenter,
                                   colors: [
-                                    Colors.black.withOpacity(0.8),
+                                    Colors.black.withAlpha(204),
                                     Colors.transparent,
                                   ],
                                 ),

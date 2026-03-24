@@ -56,7 +56,6 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
         });
       }
     } catch (e) {
-      print("Error fetching user status: $e");
       // Handle error case
       setState(() {
         _currentPlan = null;
@@ -124,12 +123,12 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.1),
-                    Colors.black.withOpacity(0.2),
-                    Colors.black.withOpacity(0.6),
-                    Colors.black.withOpacity(0.9),
-                    Colors.black.withOpacity(0.95),
-                    Colors.black.withOpacity(1),
+                    Colors.black.withAlpha(26),
+                    Colors.black.withAlpha(51),
+                    Colors.black.withAlpha(153),
+                    Colors.black.withAlpha(230),
+                    Colors.black.withAlpha(242),
+                    Colors.black,
                   ],
                 ),
               ),
@@ -364,7 +363,7 @@ class PlanTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.black45,
+        color: isSelected ? Colors.blue.withAlpha(51) : Colors.black45,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isSelected ? Colors.blue : Colors.white38,

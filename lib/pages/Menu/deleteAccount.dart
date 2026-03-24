@@ -33,7 +33,7 @@ class _DeleteAccountState extends State<DeleteAccount> {
             .doc(user.uid)
             .delete();
 
-        print("Account deleted");
+
 
         // Navigate to Signin page and clear navigation stack
         Navigator.push(
@@ -41,10 +41,9 @@ class _DeleteAccountState extends State<DeleteAccount> {
           MaterialPageRoute(builder: (context) => AuthPage()),
         );
       } else {
-        print("No user is logged in");
+        // No user is logged in
       }
     } catch (e) {
-      print("Error deleting user: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Failed to delete account: $e")));

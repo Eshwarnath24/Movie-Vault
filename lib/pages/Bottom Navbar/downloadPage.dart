@@ -106,7 +106,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
             const SizedBox(height: 4),
             LinearProgressIndicator(
               value: 0.23, // 2.3 GB / 10 GB
-              backgroundColor: Colors.grey.withOpacity(0.5),
+              backgroundColor: Colors.grey.withAlpha(128),
               valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
               minHeight: 2,
             ),
@@ -165,7 +165,7 @@ class _DownloadsPageState extends State<DownloadsPage> {
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: isSelected ? Colors.blue.withOpacity(0.2) : null,
+        color: isSelected ? Colors.blue.withAlpha(51) : null,
         child: ListTile(
           onTap: () {
             if (_isSelectionMode) {

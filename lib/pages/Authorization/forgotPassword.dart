@@ -45,7 +45,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      print(e.code);
       // pop loader
       Navigator.pop(context);
 
@@ -75,7 +74,6 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         phoneNumber: phoneNumController.text.trim().toString(),
       );
     } on FirebaseAuthException catch (e) {
-      print(e.code);
       // pop loader
       Navigator.pop(context);
 

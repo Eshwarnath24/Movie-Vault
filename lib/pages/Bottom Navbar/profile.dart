@@ -35,7 +35,6 @@ class _ProfileState extends State<Profile> {
     if (mounted) {
       setState(() {
         userInfo = data;
-        print(userInfo);
       });
     }
   }
@@ -57,7 +56,6 @@ class _ProfileState extends State<Profile> {
           color: Colors.transparent,
           child: ListTile(
             onTap: () async {
-              print("Add $Option tapped");
               if (Option == "Logout") {
                 await FirebaseAuth.instance.signOut(); // 🔹 Sign out user
                 Navigator.pushReplacement(

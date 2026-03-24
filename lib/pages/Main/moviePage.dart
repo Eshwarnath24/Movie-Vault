@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ott/pages/Main/movie.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+
 class MovieDetailPage extends StatelessWidget {
   final Movie movie;
 
@@ -80,22 +81,42 @@ class MovieDetailPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            VideoPlayerPage(videoUrl: movie.videoUrl),
+                        builder: (_) => VideoPlayerPage(
+                          videoUrl: movie.videoUrl,
+                          movieTitle: movie.title,
+                        ),
                       ),
                     );
                   },
-                  child: const Text(
-                    'WATCH NOW',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.play_arrow_rounded, size: 22),
+                      SizedBox(width: 6),
+                      Text(
+                        'WATCH TRAILER',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 26),
+            const SizedBox(height: 10),
+
+            // Trailer disclaimer
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'This plays the official YouTube trailer. No full movies are hosted or streamed.',
+                style: TextStyle(color: Colors.white38, fontSize: 11),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
 
             // Episodes
             movie.episodes.isNotEmpty ? Padding(
@@ -135,49 +156,84 @@ class MovieDetailPage extends StatelessWidget {
   }
 }
 
-class _Header extends StatefulWidget {
+class _Header extends StatelessWidget {
   final Movie movie;
   const _Header({required this.movie});
-
-  @override
-  State<_Header> createState() => _HeaderState();
-}
-
-class _HeaderState extends State<_Header> {
-  late YoutubePlayerController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    final videoId = YoutubePlayer.convertUrlToId(widget.movie.videoUrl.trim());
-    print("Header Video ID: $videoId"); // Debug print
-
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? "zAGVQLHvwOY", // fallback Joker ID
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-        forceHD: true,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          YoutubePlayer(
-            controller: _controller,
-            showVideoProgressIndicator: true,
+          // Show banner image instead of auto-playing video
+          Image.asset(
+            movie.bannerUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[900],
+                child: const Center(
+                  child: Icon(Icons.movie, size: 60, color: Colors.white38),
+                ),
+              );
+            },
           ),
+          // Gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withAlpha(120),
+                  Colors.transparent,
+                  Colors.black.withAlpha(180),
+                ],
+              ),
+            ),
+          ),
+          // Play trailer button
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => VideoPlayerPage(
+                      videoUrl: movie.videoUrl,
+                      movieTitle: movie.title,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(40),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.white54),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_arrow_rounded, color: Colors.white, size: 30),
+                    SizedBox(width: 6),
+                    Text(
+                      'Play Trailer',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Back button
           Positioned(
             top: 8,
             left: 8,
@@ -185,13 +241,38 @@ class _HeaderState extends State<_Header> {
               onTap: () {
                 Navigator.pop(context);
               },
-              child: Row(
-                children: [
-                  Icon(Icons.arrow_back, color: Colors.white),
-                  Text(
-                    " Back",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withAlpha(100),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                    SizedBox(width: 4),
+                    Text(
+                      "Back",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Movie title
+          Positioned(
+            bottom: 12,
+            left: 16,
+            right: 16,
+            child: Text(
+              movie.title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                shadows: [
+                  Shadow(blurRadius: 8, color: Colors.black),
                 ],
               ),
             ),
@@ -242,7 +323,10 @@ class _EpisodeTile extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => VideoPlayerPage(videoUrl: videoUrl),
+                          builder: (_) => VideoPlayerPage(
+                            videoUrl: videoUrl,
+                            movieTitle: title,
+                          ),
                         ),
                       );
                     },
@@ -303,11 +387,16 @@ class _EpisodeTile extends StatelessWidget {
   }
 }
 
-/// Separate video player screen
+/// Separate trailer player screen
 class VideoPlayerPage extends StatefulWidget {
   final String videoUrl;
+  final String movieTitle;
 
-  const VideoPlayerPage({super.key, required this.videoUrl});
+  const VideoPlayerPage({
+    super.key,
+    required this.videoUrl,
+    this.movieTitle = '',
+  });
 
   @override
   State<VideoPlayerPage> createState() => _VideoPlayerPageState();
@@ -320,10 +409,9 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   void initState() {
     super.initState();
     final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl.trim());
-    print("VideoPlayerPage Video ID: $videoId"); // Debug print
 
     _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? "zAGVQLHvwOY", // fallback Joker ID
+      initialVideoId: videoId ?? 'dQw4w9WgXcQ',
       flags: const YoutubePlayerFlags(
         autoPlay: true,
         mute: false,
@@ -342,6 +430,15 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text(
+          widget.movieTitle.isNotEmpty
+              ? '${widget.movieTitle} — Trailer'
+              : 'Official Trailer',
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
       body: YoutubePlayerBuilder(
         player: YoutubePlayer(
           controller: _controller,
@@ -352,10 +449,17 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             child: Column(
               children: [
                 AspectRatio(aspectRatio: 16 / 9, child: player),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
+                Text(
+                  widget.movieTitle.isNotEmpty
+                      ? '${widget.movieTitle} — Official Trailer'
+                      : 'Official Trailer',
+                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                const SizedBox(height: 8),
                 const Text(
-                  "Now Playing",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
+                  'Video sourced from official YouTube channels.',
+                  style: TextStyle(color: Colors.white38, fontSize: 12),
                 ),
               ],
             ),

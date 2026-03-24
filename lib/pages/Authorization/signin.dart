@@ -58,18 +58,12 @@ class _SigninState extends State<Signin> {
           emailController.clear();
           passwordController.clear();
 
-          final currentPassword = await db.getUserPassword();
-          if (passwordController.text.trim() != currentPassword) {
-            db.updateUserInfo({'password': passwordController.text.trim()});
-          }
-
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => MovieVault()),
           );
         }
       } on FirebaseAuthException catch (e) {
-        print(e.code);
         // pop loader
         Navigator.pop(context);
 

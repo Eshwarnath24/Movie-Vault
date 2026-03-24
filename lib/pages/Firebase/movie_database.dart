@@ -12,7 +12,6 @@ class MovieDatabase {
   Future<void> uploadAllMovies() async {
     await _uploadMovies(trendingMovies, "TrendingMovies");
     await _uploadMovies(caroselMovies, "CarouselMovies");
-    print("All movies processed successfully!");
   }
 
   Future<void> addMovie(Movie movie, String collectionName) async {
@@ -21,9 +20,6 @@ class MovieDatabase {
 
     if (!docSnapshot.exists) {
       await docRef.set(movie.toMap());
-      print("Uploaded $collectionName movie: ${movie.title}");
-    } else {
-      print("$collectionName movie already exists: ${movie.title}");
     }
   }
 
@@ -88,7 +84,6 @@ class MovieDatabase {
       "continueMovies": FieldValue.arrayUnion([movieId]),
     });
 
-    print("✅ Updated continueMovies with movieId $movieId for ${user.uid}");
   }
 
   // =============================================================
@@ -153,7 +148,6 @@ class MovieDatabase {
       }
     }
 
-    print("🎬 Fetched ${continueMovies.length} continue movies");
     return continueMovies;
   }
 }

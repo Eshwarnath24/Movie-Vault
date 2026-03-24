@@ -157,6 +157,14 @@ class _MovieVaultState extends State<MovieVault> {
               SizedBox(height: 60),
 
               _createMenuOptions("Delete Account", Icons.delete_forever, () {
+                if (password == null || password!.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Unable to verify account. Please try again later.'),
+                    ),
+                  );
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(
