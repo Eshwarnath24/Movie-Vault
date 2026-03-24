@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ott/pages/Main/movie.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 
 class MovieDetailPage extends StatelessWidget {
@@ -405,24 +405,48 @@ class VideoPlayerPage extends StatefulWidget {
 class _VideoPlayerPageState extends State<VideoPlayerPage> {
   late YoutubePlayerController _controller;
 
+  /// Extract video ID from a YouTube URL
+  String _extractVideoId(String url) {
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null) return 'dQw4w9WgXcQ';
+
+    // Handle youtu.be/VIDEO_ID
+    if (uri.host.contains('youtu.be')) {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : 'dQw4w9WgXcQ';
+    }
+
+    // Handle youtube.com/watch?v=VIDEO_ID
+    if (uri.queryParameters.containsKey('v')) {
+      return uri.queryParameters['v']!;
+    }
+
+    // Handle youtube.com/embed/VIDEO_ID
+    if (uri.pathSegments.contains('embed') && uri.pathSegments.length > 1) {
+      final embedIndex = uri.pathSegments.indexOf('embed');
+      return uri.pathSegments[embedIndex + 1];
+    }
+
+    return 'dQw4w9WgXcQ'; // fallback
+  }
+
   @override
   void initState() {
     super.initState();
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl.trim());
+    final videoId = _extractVideoId(widget.videoUrl);
 
-    _controller = YoutubePlayerController(
-      initialVideoId: videoId ?? 'dQw4w9WgXcQ',
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: true,
+      params: const YoutubePlayerParams(
+        showFullscreenButton: true,
         mute: false,
-        forceHD: true,
       ),
     );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller.close();
     super.dispose();
   }
 
@@ -439,32 +463,27 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
           style: const TextStyle(fontSize: 16),
         ),
       ),
-      body: YoutubePlayerBuilder(
-        player: YoutubePlayer(
-          controller: _controller,
-          showVideoProgressIndicator: true,
-        ),
-        builder: (context, player) {
-          return SafeArea(
-            child: Column(
-              children: [
-                AspectRatio(aspectRatio: 16 / 9, child: player),
-                const SizedBox(height: 16),
-                Text(
-                  widget.movieTitle.isNotEmpty
-                      ? '${widget.movieTitle} — Official Trailer'
-                      : 'Official Trailer',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Video sourced from official YouTube channels.',
-                  style: TextStyle(color: Colors.white38, fontSize: 12),
-                ),
-              ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            YoutubePlayer(
+              controller: _controller,
+              aspectRatio: 16 / 9,
             ),
-          );
-        },
+            const SizedBox(height: 16),
+            Text(
+              widget.movieTitle.isNotEmpty
+                  ? '${widget.movieTitle} — Official Trailer'
+                  : 'Official Trailer',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Video sourced from official YouTube channels.',
+              style: TextStyle(color: Colors.white38, fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }
