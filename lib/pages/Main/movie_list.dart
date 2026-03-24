@@ -9,7 +9,7 @@ final List<Movie> caroselMovies = [
     genres: ["Action", "Thriller", "Romance"],
     description:
         "An undercover cop infiltrates the underworld to take down a dangerous gangster.",
-    videoUrl: "https://www.youtube.com/watch?v=BRQhY0xfq1Y",
+    videoUrl: "https://www.youtube.com/watch?v=Eizdl6D0O9M",
     episodes: [],
   ),
   Movie(
@@ -20,7 +20,7 @@ final List<Movie> caroselMovies = [
     genres: ["Action", "Thriller", "Drama"],
     description:
         "A professional assassin on the run assumes another man's identity and finds love and redemption.",
-    videoUrl: "https://www.youtube.com/watch?v=ZyqNQQjVfqU",
+    videoUrl: "https://www.youtube.com/watch?v=KWt9dzrc1Go",
     episodes: [],
   ),
   Movie(
@@ -31,7 +31,7 @@ final List<Movie> caroselMovies = [
     genres: ["Action", "Romance", "Drama"],
     description:
         "A kabaddi player rescues a girl from an influential faction leader and fights against all odds.",
-    videoUrl: "https://www.youtube.com/watch?v=lx4tRtSXxIY",
+    videoUrl: "https://www.youtube.com/watch?v=R_umGI0FuiM",
     episodes: [],
   ),
   Movie(
@@ -42,7 +42,7 @@ final List<Movie> caroselMovies = [
     genres: ["Action", "Drama", "Family"],
     description:
         "A wealthy young man adopts a village and works to improve it.",
-    videoUrl: "https://www.youtube.com/watch?v=kz9K2V2EJv4",
+    videoUrl: "https://www.youtube.com/watch?v=dlvgG-hZ9xc",
     episodes: [],
   ),
   Movie(
@@ -53,7 +53,7 @@ final List<Movie> caroselMovies = [
     genres: ["Drama", "Family", "Romance"],
     description:
         "A young man struggles to overcome a family curse while finding love and peace.",
-    videoUrl: "https://www.youtube.com/watch?v=kzFCXs0-9M0",
+    videoUrl: "https://www.youtube.com/watch?v=h6oGhK7kE7o",
     episodes: [],
   ),
 ];
