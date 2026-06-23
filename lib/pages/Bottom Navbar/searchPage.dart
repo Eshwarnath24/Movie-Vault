@@ -111,6 +111,10 @@ class OttSearchPage extends StatefulWidget {
   State<OttSearchPage> createState() => _OttSearchPageState();
 }
 
+/// Minimum normalised similarity (0–1) for a fuzzy match to be considered.
+/// 0.5 → tolerates up to ~50 % edit distance (e.g. "mastter" → "Master").
+const double _kFuzzyThreshold = 0.5;
+
 class _OttSearchPageState extends State<OttSearchPage> {
   final TextEditingController _search = TextEditingController();
 
@@ -141,9 +145,10 @@ class _OttSearchPageState extends State<OttSearchPage> {
   }
 
   List<ContentItem> get _results {
-    String q = _normalized(_search.text.trim());
+    final String q = _search.text.trim();
 
-    return kCatalog.where((c) {
+    // Step 1 — apply all structural filters (unchanged behaviour).
+    final filtered = kCatalog.where((c) {
       if (_selectedTypes.isNotEmpty && !_selectedTypes.contains(c.type)) {
         return false;
       }
@@ -172,14 +177,83 @@ class _OttSearchPageState extends State<OttSearchPage> {
           break;
       }
 
-      if (q.isEmpty) return true;
-
-      return _normalized(c.title).contains(q);
+      return true;
     }).toList();
+
+    // Step 2 — score by title relevance and exclude non-matches.
+    if (q.isEmpty) return filtered; // no query → return all filter-passing items
+
+    final scored = filtered
+        .map((c) => MapEntry(c, _scoreTitle(c.title, q)))
+        .where((e) => e.value > 0.0)
+        .toList();
+
+    // Step 3 — sort by descending relevance score.
+    scored.sort((a, b) => b.value.compareTo(a.value));
+    return scored.map((e) => e.key).toList();
   }
 
-  String _normalized(String s) {
-    return s.toLowerCase();
+  // ─── Fuzzy helpers ────────────────────────────────────────────────────────
+
+  String _normalized(String s) => s.toLowerCase().trim();
+
+  /// Classic dynamic-programming Levenshtein edit distance.
+  /// O(m × n) — negligible for short movie/show titles.
+  int _levenshtein(String a, String b) {
+    if (a == b) return 0;
+    if (a.isEmpty) return b.length;
+    if (b.isEmpty) return a.length;
+
+    // Use two rows to keep memory O(min(m,n)).
+    List<int> prev = List<int>.generate(b.length + 1, (i) => i);
+    List<int> curr = List<int>.filled(b.length + 1, 0);
+
+    for (int i = 1; i <= a.length; i++) {
+      curr[0] = i;
+      for (int j = 1; j <= b.length; j++) {
+        final cost = a[i - 1] == b[j - 1] ? 0 : 1;
+        curr[j] = [curr[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost]
+            .reduce((x, y) => x < y ? x : y);
+      }
+      final tmp = prev;
+      prev = curr;
+      curr = tmp;
+    }
+    return prev[b.length];
+  }
+
+  /// Returns a relevance score in the range [0.0 – 4.0].
+  ///
+  /// Priority order (as required):
+  ///   4.0  → exact title match
+  ///   3.0  → title starts with query
+  ///   2.0  → title contains query (substring)
+  ///   0–1  → normalised fuzzy similarity ≥ [_kFuzzyThreshold]
+  ///   0.0  → no match (exclude)
+  double _scoreTitle(String title, String query) {
+    final t = _normalized(title);
+    final q = _normalized(query);
+
+    if (q.isEmpty) return 1.0; // no query → always include
+
+    if (t == q) return 4.0;
+    if (t.startsWith(q)) return 3.0;
+    if (t.contains(q)) return 2.0;
+
+    // Fuzzy: compare query against the full title and also against
+    // each individual word in the title so "war" still matches "Star Wars".
+    final words = t.split(RegExp(r'\s+'));
+    double best = 0.0;
+
+    for (final candidate in [t, ...words]) {
+      final maxLen = candidate.length > q.length ? candidate.length : q.length;
+      if (maxLen == 0) continue;
+      final dist = _levenshtein(candidate, q);
+      final sim = 1.0 - dist / maxLen;
+      if (sim > best) best = sim;
+    }
+
+    return best >= _kFuzzyThreshold ? best : 0.0;
   }
 
   void _submitSearch([String? term]) {
@@ -305,11 +379,19 @@ class _OttSearchPageState extends State<OttSearchPage> {
   }
 
   Widget _buildSuggestions() {
-    final q = _search.text.trim().toLowerCase();
-    final titles = kCatalog
-        .map((c) => c.title)
-        .where((t) => t.toLowerCase().contains(q))
-        .toSet()
+    final q = _search.text.trim();
+    if (q.isEmpty) return const SizedBox.shrink();
+
+    // Score every title, keep those with any match, sort by relevance, cap at 8.
+    final suggestions = kCatalog
+        .map((c) => MapEntry(c.title, _scoreTitle(c.title, q)))
+        .where((e) => e.value > 0.0)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    final titles = suggestions
+        .map((e) => e.key)
+        .toSet() // deduplicate
         .take(8)
         .toList();
 
@@ -329,11 +411,9 @@ class _OttSearchPageState extends State<OttSearchPage> {
             final text = titles[i];
             return ListTile(
               dense: true,
-              leading: Icon(Icons.movie_outlined),
+              leading: const Icon(Icons.movie_outlined),
               title: Text(text),
-              onTap: () {
-                _submitSearch(text);
-              },
+              onTap: () => _submitSearch(text),
             );
           },
         ),
