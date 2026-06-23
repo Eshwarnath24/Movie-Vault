@@ -13,13 +13,32 @@ Movie Vault is a modern OTT-style Flutter application that lets users browse mov
 ---
 
 ## Features
+
+### 🎬 Content
 - 🎥 **Trailer Playback** — Watch official YouTube trailers inline (Web + Mobile)
 - 🔥 **Trending & Carousel** — Dynamic movie sections powered by Firestore
 - ▶️ **Continue Watching** — Tracks recently viewed trailers per user
-- 🔍 **Search & Filter** — Search movies by title, filter by genre
-- 🔐 **Authentication** — Email/password sign-in & sign-up via Firebase Auth
-- 📱 **Subscription Plans** — Starter, Premium, and Enterprise tiers
-- 👤 **Profile Management** — Edit profile, change password, delete account
+
+### 🔍 Smart Search
+- **Fuzzy Title Search** — Typo-tolerant search using Levenshtein edit distance; finds movies even with spelling mistakes (e.g. `"mastter"` → *Master*, `"star war"` → *Star Wars*)
+- **Relevance Scoring** — Results ranked by priority: exact match → starts with → contains → fuzzy similarity
+- **Live Suggestions** — Autocomplete dropdown updates as you type, also fuzzy-matched and sorted by relevance (max 8)
+- **Recent Searches** — Remembers your last 8 queries for quick re-use
+- **Trending Chips** — Curated trending search shortcuts
+
+### 🎛️ Filters
+- **Content Type** — Movie, Series, Kids, Documentary, Original
+- **Genre** — Action, Adventure, Animation, Comedy, Crime, Drama, Fantasy, Horror, Romance, Sci-Fi, Thriller, Documentary, Nature, Family
+- **Language** — English, Hindi, Tamil, Telugu
+- **Minimum Rating** — Slider from 0–10 (0.5 step)
+- **Duration** — Any / Short (<30 min) / Medium (30–90 min) / Long (>90 min)
+
+### 🔐 User Management
+- **Authentication** — Email/password sign-in & sign-up via Firebase Auth
+- **Profile Management** — Edit profile, change password, delete account
+- **Subscription Plans** — Starter, Premium, and Enterprise tiers
+
+### 📱 Other
 - 📥 **Downloads UI** — Download management interface with storage tracking
 
 ---
@@ -31,6 +50,7 @@ Movie Vault is a modern OTT-style Flutter application that lets users browse mov
 | Backend | Firebase Firestore |
 | Authentication | Firebase Auth |
 | Video Player | `youtube_player_iframe` (YouTube iFrame API) |
+| Search Algorithm | Custom Levenshtein fuzzy matching (zero-dependency, on-device) |
 | Hosting | Vercel (Web) |
 
 ---
@@ -43,11 +63,38 @@ lib/
 └── pages/
     ├── Authorization/           # Sign-in, Sign-up, Forgot Password, Splash Screen
     ├── Main/                    # Home page, Movie detail page, Movie data models
-    ├── Bottom Navbar/           # Profile, Search, Downloads, Edit Password
+    ├── Bottom Navbar/           # Profile, Search (fuzzy), Downloads, Edit Password
     ├── Firebase/                # Firestore database helpers (users, movies)
     ├── Menu/                    # Delete account, Contact support
     └── subscription/            # Subscription plans & payment UI
 ```
+
+---
+
+## Search Algorithm
+
+The search system uses a **self-contained, zero-dependency fuzzy matching engine** implemented directly in Dart (no external packages).
+
+### Scoring (`_scoreTitle`)
+
+| Score | Condition | Example |
+|-------|-----------|---------|
+| `4.0` | Exact match | `"titanic"` → *Titanic* |
+| `3.0` | Title starts with query | `"star"` → *Star Wars* |
+| `2.0` | Title contains query | `"wars"` → *Star Wars* |
+| `0–1` | Fuzzy similarity ≥ 0.5 | `"mastter"` → *Master* |
+| `0.0` | No match — excluded | — |
+
+### Levenshtein Distance
+
+Edit distance is computed with a **two-row rolling DP** array (O(m×n) time, O(n) space).
+Normalised similarity = `1 - distance / max(len_a, len_b)`.
+The query is compared against both the full title and each individual word, so short queries correctly match multi-word titles.
+
+### Tuning
+Change `_kFuzzyThreshold` in `searchPage.dart` (default `0.5`):
+- Higher (e.g. `0.7`) → stricter, fewer false positives
+- Lower (e.g. `0.3`) → looser, catches more aggressive typos
 
 ---
 
